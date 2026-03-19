@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.HitDto;
-import ru.practicum.ewm.ViewStatsDto;
+import ru.practicum.ewm.StatResponseDto;
 import ru.practicum.ewm.mapper.HitMapper;
 import ru.practicum.ewm.model.Hit;
 import ru.practicum.ewm.repository.HitRepository;
@@ -21,9 +21,9 @@ import java.util.List;
 @Transactional(readOnly = true)
 public class StatServiceImpl implements StatService {
 
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private final HitRepository hitRepository;
     private final HitMapper hitMapper;
-    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @Override
     @Transactional
@@ -35,7 +35,7 @@ public class StatServiceImpl implements StatService {
     }
 
     @Override
-    public List<ViewStatsDto> getStats(String start, String end, List<String> uris, Boolean unique) {
+    public List<StatResponseDto> getStats(String start, String end, List<String> uris, Boolean unique) {
         LocalDateTime startTime = LocalDateTime.parse(start, FORMATTER);
         LocalDateTime endTime = LocalDateTime.parse(end, FORMATTER);
 
@@ -43,7 +43,7 @@ public class StatServiceImpl implements StatService {
             throw new IllegalArgumentException("Дата начала не может быть позже даты окончания");
         }
 
-        List<ViewStatsDto> stats;
+        List<StatResponseDto> stats;
         if (Boolean.TRUE.equals(unique)) {
             stats = hitRepository.findUniqueStats(startTime, endTime, uris);
         } else {
