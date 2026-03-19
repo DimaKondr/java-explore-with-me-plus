@@ -1,5 +1,6 @@
 package ru.practicum;
 
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -7,6 +8,8 @@ import org.springframework.web.client.RestClient;
 import ru.practicum.ewm.HitDto;
 import ru.practicum.ewm.StatRequestParamDto;
 import ru.practicum.ewm.StatResponseDto;
+
+import java.util.List;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 
@@ -34,7 +37,7 @@ public class StatClientImpl implements StatClient {
     }
 
     @Override
-    public StatResponseDto getStats(StatRequestParamDto dto) {
+    public List<StatResponseDto> getStats(StatRequestParamDto dto) {
         return restClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/stats")
@@ -45,6 +48,6 @@ public class StatClientImpl implements StatClient {
                         .build())
                 .accept(APPLICATION_JSON)
                 .retrieve()
-                .body(StatResponseDto.class);
+                .body(new ParameterizedTypeReference<List<StatResponseDto>>() {});
     }
 }
