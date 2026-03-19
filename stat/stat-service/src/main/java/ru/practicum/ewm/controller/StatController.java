@@ -27,11 +27,19 @@ public class StatController {
 
     @GetMapping("/stats")
     public List<StatResponseDto> getStats(
-            @RequestParam String start,
-            @RequestParam String end,
+            @RequestParam @Valid String start,
+            @RequestParam @Valid String end,
             @RequestParam(required = false) List<String> uris,
             @RequestParam(defaultValue = "false") Boolean unique) {
-        log.info("GET /stats с параметрами: start={}, end={}, uris={}, unique={}", start, end, uris, unique);
+
+        log.info("GET /stats с параметрами: start={}, end={}, uris={}, unique={}",
+                start, end, uris, unique);
+
+        // Дополнительная бизнес-валидация
+        if (start.compareTo(end) > 0) {
+            throw new IllegalArgumentException("Дата начала не может быть позже даты окончания");
+        }
+
         return statService.getStats(start, end, uris, unique);
     }
 }
