@@ -35,10 +35,6 @@ public class StatController {
         log.info("GET /stats с параметрами: start={}, end={}, uris={}, unique={}",
                 start, end, uris, unique);
 
-        // Дополнительная бизнес-валидация
-        if (start.compareTo(end) > 0) {
-            throw new IllegalArgumentException("Дата начала не может быть позже даты окончания");
-        }
 
         return statService.getStats(start, end, uris, unique);
     }

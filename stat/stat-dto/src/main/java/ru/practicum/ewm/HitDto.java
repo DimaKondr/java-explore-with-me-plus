@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class HitDto {
-    private Long id;  // id не валидируем - он генерируется
+    private Long id;
 
     @NotBlank(message = "app не может быть пустым")
     @Size(max = 255, message = "app не может быть длиннее 255 символов")
