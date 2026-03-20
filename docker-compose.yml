@@ -18,8 +18,8 @@ services:
     ports:
       - "5434:5432"
     environment:
-      - POSTGRES_PASSWORD=ewm
-      - POSTGRES_USER=ewm
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_USER=postgres-ewm-stat-service
       - POSTGRES_DB=ewm-stat-service
     healthcheck:
       test: pg_isready -q -d $$POSTGRES_DB -U $$POSTGRES_USER
@@ -47,8 +47,8 @@ services:
     ports:
       - "5433:5432"
     environment:
-      - POSTGRES_PASSWORD=ewm
-      - POSTGRES_USER=ewm
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_USER=postgres-ewm-main-service
       - POSTGRES_DB=ewm-main-service
     healthcheck:
       test: pg_isready -q -d $$POSTGRES_DB -U $$POSTGRES_USER
