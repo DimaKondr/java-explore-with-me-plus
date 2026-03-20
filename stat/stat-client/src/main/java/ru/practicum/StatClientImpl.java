@@ -28,6 +28,14 @@ public class StatClientImpl implements StatClient {
                 .build();
     }
 
+    //  конструктор для тестов
+    public StatClientImpl(RestClient.Builder builder, String baseUrl) {
+        this.restClient = builder
+                .baseUrl(baseUrl)
+                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .build();
+    }
+
     @Override
     public HitDto postHit(HitDto dto) {
         try {
