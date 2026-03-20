@@ -29,7 +29,7 @@ class StatClientTest {
         String baseUrl = mockWebServer.url("").toString();
 
         RestClient.Builder builder = RestClient.builder();
-        statClient = new StatClientImpl(builder, baseUrl); // нужно добавить конструктор
+        statClient = new StatClientImpl(builder, baseUrl);
     }
 
     @AfterEach
@@ -39,15 +39,13 @@ class StatClientTest {
 
     @Test
     void testPostHitSuccess() {
-        String responseBody = """
-                {
-                    "id": 1,
-                    "app": "test-app",
-                    "uri": "/test",
-                    "ip": "127.0.0.1",
-                    "timestamp": "2024-01-01 12:00:00"
-                }
-                """;
+        String responseBody = "{\n" +
+                "    \"id\": 1,\n" +
+                "    \"app\": \"test-app\",\n" +
+                "    \"uri\": \"/test\",\n" +
+                "    \"ip\": \"127.0.0.1\",\n" +
+                "    \"timestamp\": \"2024-01-01 12:00:00\"\n" +
+                "}";
 
         mockWebServer.enqueue(new MockResponse()
                 .setResponseCode(201)
@@ -70,12 +68,10 @@ class StatClientTest {
 
     @Test
     void testGetStatsSuccess() {
-        String responseBody = """
-                [
-                    {"app":"app1","uri":"/test1","hits":5},
-                    {"app":"app1","uri":"/test2","hits":3}
-                ]
-                """;
+        String responseBody = "[\n" +
+                "    {\"app\":\"app1\",\"uri\":\"/test1\",\"hits\":5},\n" +
+                "    {\"app\":\"app1\",\"uri\":\"/test2\",\"hits\":3}\n" +
+                "]";
 
         mockWebServer.enqueue(new MockResponse()
                 .setResponseCode(200)
