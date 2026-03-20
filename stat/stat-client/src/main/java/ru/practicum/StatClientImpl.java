@@ -57,7 +57,8 @@ public class StatClientImpl implements StatClient {
                             .build())
                     .accept(APPLICATION_JSON)
                     .retrieve()
-                    .body(new ParameterizedTypeReference<List<StatResponseDto>>() {});
+                    .body(new ParameterizedTypeReference<List<StatResponseDto>>() {
+                    });
         } catch (Exception e) {
             log.error("Неудачная попытка получения данных статистики из сервиса статистики. " +
                     "Параметры запроса: {}", dto);
