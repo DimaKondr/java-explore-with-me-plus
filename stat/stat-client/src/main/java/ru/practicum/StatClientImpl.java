@@ -28,6 +28,14 @@ public class StatClientImpl implements StatClient {
                 .build();
     }
 
+    //  конструктор для тестов
+    public StatClientImpl(RestClient.Builder builder, String baseUrl) {
+        this.restClient = builder
+                .baseUrl(baseUrl)
+                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .build();
+    }
+
     @Override
     public HitDto postHit(HitDto dto) {
         try {
@@ -57,7 +65,8 @@ public class StatClientImpl implements StatClient {
                             .build())
                     .accept(APPLICATION_JSON)
                     .retrieve()
-                    .body(new ParameterizedTypeReference<List<StatResponseDto>>() {});
+                    .body(new ParameterizedTypeReference<List<StatResponseDto>>() {
+                    });
         } catch (Exception e) {
             log.error("Неудачная попытка получения данных статистики из сервиса статистики. " +
                     "Параметры запроса: {}", dto);
