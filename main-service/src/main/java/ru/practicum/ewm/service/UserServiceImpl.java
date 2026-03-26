@@ -33,7 +33,7 @@ public class UserServiceImpl implements UserService {
         User user = userMapper.toEntity(request);
         User savedUser = userRepository.save(user);
         log.info("Пользователь создан с id: {}", savedUser.getId());
-        return userMapper.toDto(savedUser);
+        return userMapper.toUserDto(savedUser);
     }
 
     @Override
@@ -51,7 +51,7 @@ public class UserServiceImpl implements UserService {
 
         log.info("Найдено пользователей: {}", users.size());
         return users.stream()
-                .map(userMapper::toDto)
+                .map(userMapper::toUserDto)
                 .collect(Collectors.toList());
     }
 
