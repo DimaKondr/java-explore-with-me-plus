@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import ru.practicum.ewm.entity.Category;
+import ru.practicum.ewm.entity.User;
 
 import java.time.LocalDateTime;
 
@@ -24,8 +26,9 @@ public class Event {
     @Column(name = "annotation", nullable = false, length = 2000)
     private String annotation;
 
-    @Column(name = "category_id", nullable = false)
-    private Long category;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id", nullable = false)
+    private Category category;
 
     @Column(name = "created_on", nullable = false)
     private LocalDateTime createdOn;
@@ -36,8 +39,9 @@ public class Event {
     @Column(name = "event_date", nullable = false)
     private LocalDateTime eventDate;
 
-    @Column(name = "initiator_id", nullable = false)
-    private Long initiatorId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "initiator_id", nullable = false)
+    private User initiator;
 
     @ManyToOne
     @JoinColumn(name = "location_id", nullable = false)

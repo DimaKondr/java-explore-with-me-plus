@@ -1,10 +1,11 @@
 package ru.practicum.ewm.mapper;
 
 import lombok.experimental.UtilityClass;
-import org.springframework.stereotype.Component;
 import ru.practicum.ewm.dto.category.CategoryDto;
 import ru.practicum.ewm.dto.event.*;
 import ru.practicum.ewm.dto.user.UserShortDto;
+import ru.practicum.ewm.entity.Category;
+import ru.practicum.ewm.entity.User;
 import ru.practicum.ewm.model.event.Event;
 import ru.practicum.ewm.model.event.EventState;
 import ru.practicum.ewm.model.event.Location;
@@ -12,26 +13,26 @@ import ru.practicum.ewm.model.event.Location;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-@Component
 @UtilityClass
 public class EventMapper {
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     Event dtoToEvent(
             NewEventDto eventDto,
+            Category category,
             LocalDateTime createdOn,
-            Long initiatorId,
+            User initiator,
             Location location,
             LocalDateTime publishedOn,
             EventState state
     ) {
         return Event.builder()
                 .annotation(eventDto.getAnnotation())
-                .category(eventDto.getCategory())
+                .category(category)
                 .createdOn(createdOn)
                 .description(eventDto.getDescription())
                 .eventDate(LocalDateTime.parse(eventDto.getEventDate(), formatter))
-                .initiatorId(initiatorId)
+                .initiator(initiator)
                 .location(location)
                 .paid(eventDto.getPaid())
                 .participantLimit(eventDto.getParticipantLimit())

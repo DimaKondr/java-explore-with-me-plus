@@ -1,11 +1,9 @@
 package ru.practicum.ewm.mapper;
 
 import lombok.experimental.UtilityClass;
-import org.springframework.stereotype.Component;
 import ru.practicum.ewm.dto.event.LocationDto;
 import ru.practicum.ewm.model.event.Location;
 
-@Component
 @UtilityClass
 public class LocationMapper {
 
