@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Value;
-import ru.practicum.ewm.model.Event;
+import ru.practicum.ewm.dto.event.EventShortDto;
 
 import java.util.List;
 
@@ -14,7 +14,7 @@ import java.util.List;
 @Getter
 public class CreateCompilationDto {
 
-    List<Event> events;
+    List<EventShortDto> events;
 
     @NotNull
     Boolean pinned;

@@ -4,8 +4,8 @@ import lombok.experimental.UtilityClass;
 import ru.practicum.ewm.dto.category.CategoryDto;
 import ru.practicum.ewm.dto.event.*;
 import ru.practicum.ewm.dto.user.UserShortDto;
-import ru.practicum.ewm.entity.Category;
-import ru.practicum.ewm.entity.User;
+import ru.practicum.ewm.model.Category;
+import ru.practicum.ewm.model.User;
 import ru.practicum.ewm.model.event.Event;
 import ru.practicum.ewm.model.event.EventState;
 import ru.practicum.ewm.model.event.Location;
@@ -45,22 +45,19 @@ public class EventMapper {
 
     EventFullDto eventToFullDto(
             Event event,
-            CategoryDto category,
             Long confirmedRequests,
-            UserShortDto initiator,
-            LocationDto location,
             Long views
     ) {
         return EventFullDto.builder()
                 .annotation(event.getAnnotation())
-                .category(category)
+                .category(CategoryMapper.toCategoryDto(event.getCategory()))
                 .confirmedRequests(confirmedRequests)
                 .createdOn(event.getCreatedOn().format(formatter))
                 .description(event.getDescription())
                 .eventDate(event.getEventDate().format(formatter))
                 .id(event.getId())
-                .initiator(initiator)
-                .location(location)
+                .initiator(UserMapper.toUserShortDto(event.getInitiator()))
+                .location(LocationMapper.locationToDto(event.getLocation()))
                 .paid(event.getPaid())
                 .participantLimit(event.getParticipantLimit())
                 .publishedOn(event.getPublishedOn().format(formatter))
@@ -73,18 +70,16 @@ public class EventMapper {
 
     EventShortDto eventToShortDto(
             Event event,
-            CategoryDto category,
             Long confirmedRequests,
-            UserShortDto initiator,
             Long views
     ) {
         return EventShortDto.builder()
                 .annotation(event.getAnnotation())
-                .category(category)
+                .category(CategoryMapper.toCategoryDto(event.getCategory()))
                 .confirmedRequests(confirmedRequests)
                 .eventDate(event.getEventDate().format(formatter))
                 .id(event.getId())
-                .initiator(initiator)
+                .initiator(UserMapper.toUserShortDto(event.getInitiator()))
                 .paid(event.getPaid())
                 .title(event.getTitle())
                 .views(views)

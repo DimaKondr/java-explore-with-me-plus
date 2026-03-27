@@ -1,12 +1,12 @@
 package ru.practicum.ewm.mapper;
 
-import org.springframework.stereotype.Component;
+import lombok.experimental.UtilityClass;
 import ru.practicum.ewm.dto.user.NewUserRequest;
 import ru.practicum.ewm.dto.user.UserDto;
 import ru.practicum.ewm.dto.user.UserShortDto;
-import ru.practicum.ewm.entity.User;
+import ru.practicum.ewm.model.User;
 
-@Component
+@UtilityClass
 public class UserMapper {
 
     public User toEntity(NewUserRequest request) {

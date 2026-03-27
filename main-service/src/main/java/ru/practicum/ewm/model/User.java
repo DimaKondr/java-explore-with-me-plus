@@ -1,23 +1,31 @@
 package ru.practicum.ewm.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
+import ru.practicum.ewm.model.event.Event;
 
-@Entity
-@Builder
-@Getter
-@Table(name = "user")
+import java.util.List;
+
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
-// заглушка (пустой временный файл)
+@Entity
+@Table(name = "users")
 public class User {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(name = "email", nullable = false, unique = true, length = 254)
+    private String email;
+
+    @Column(name = "name", nullable = false, length = 250)
+    private String name;
+
+    @OneToMany(mappedBy = "initiator", fetch = FetchType.LAZY)
+    private List<Event> events;
 
 }

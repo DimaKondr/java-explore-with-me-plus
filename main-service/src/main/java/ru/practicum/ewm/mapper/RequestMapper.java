@@ -2,10 +2,10 @@ package ru.practicum.ewm.mapper;
 
 import lombok.experimental.UtilityClass;
 import ru.practicum.ewm.dto.request.ParticipationRequestDto;
-import ru.practicum.ewm.model.Event;
 import ru.practicum.ewm.model.ParticipationRequest;
-import ru.practicum.ewm.model.RequestStatus;
 import ru.practicum.ewm.model.User;
+import ru.practicum.ewm.model.event.Event;
+import ru.practicum.ewm.model.event.EventState;
 
 import java.time.LocalDateTime;
 
@@ -14,7 +14,7 @@ public class RequestMapper {
 
 //    Преобразование в сущность
 
-    ParticipationRequest toEntity(LocalDateTime nowData, Event event, User requester, RequestStatus status) {
+    ParticipationRequest toEntity(LocalDateTime nowData, Event event, User requester, EventState status) {
         return ParticipationRequest.builder()
                 .created(nowData)
                 .event(event)
@@ -29,8 +29,8 @@ public class RequestMapper {
         return ParticipationRequestDto.builder()
                 .id(req.getId())
                 .created(req.getCreated().toString())
-                .event(req.getId())
-                .requester(req.getRequester().getId())
+                .eventId(req.getEvent().getId())
+                .requesterId(req.getRequester().getId())
                 .status(req.getStatus().toString())
                 .build();
     }

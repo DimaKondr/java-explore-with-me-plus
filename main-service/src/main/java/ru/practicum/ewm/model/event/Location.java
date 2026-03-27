@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -23,4 +25,7 @@ public class Location {
 
     @Column(name = "lon", nullable = false)
     private Double lon;
+
+    @OneToOne(mappedBy = "location")
+    private Event event;
 }

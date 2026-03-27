@@ -5,10 +5,12 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import ru.practicum.ewm.entity.Category;
-import ru.practicum.ewm.entity.User;
+import ru.practicum.ewm.model.Category;
+import ru.practicum.ewm.model.Compilation;
+import ru.practicum.ewm.model.User;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 
 @AllArgsConstructor
@@ -43,7 +45,7 @@ public class Event {
     @JoinColumn(name = "initiator_id", nullable = false)
     private User initiator;
 
-    @ManyToOne
+    @OneToOne
     @JoinColumn(name = "location_id", nullable = false)
     private Location location;
 
@@ -53,7 +55,7 @@ public class Event {
     @Column(name = "participant_limit", nullable = false)
     private Integer participantLimit;
 
-    @Column(name = "published_on"/*, nullable = false*/)
+    @Column(name = "published_on")
     private LocalDateTime publishedOn;
 
     @Column(name = "request_moderation", nullable = false)
@@ -65,4 +67,12 @@ public class Event {
 
     @Column(name = "title", nullable = false, length = 120)
     private String title;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "event_compilation", // Имя промежуточной таблицы
+            joinColumns = @JoinColumn(name = "event_id"), // Ключ текущей сущности
+            inverseJoinColumns = @JoinColumn(name = "compilation_id") // Ключ связанной сущности
+    )
+    private List<Compilation> compilations;
 }

@@ -9,9 +9,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.dto.user.NewUserRequest;
 import ru.practicum.ewm.dto.user.UserDto;
-import ru.practicum.ewm.entity.User;
-import ru.practicum.ewm.exception.NotFoundException;
 import ru.practicum.ewm.mapper.UserMapper;
+import ru.practicum.ewm.model.User;
+import ru.practicum.ewm.exception.NotFoundException;
 import ru.practicum.ewm.repository.UserRepository;
 
 import java.util.List;
@@ -20,20 +20,18 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
-    private final UserMapper userMapper;
 
     @Override
     @Transactional
     public UserDto createUser(NewUserRequest request) {
         log.info("Создание пользователя: {}", request);
-        User user = userMapper.toEntity(request);
+        User user = UserMapper.toEntity(request);
         User savedUser = userRepository.save(user);
         log.info("Пользователь создан с id: {}", savedUser.getId());
-        return userMapper.toUserDto(savedUser);
+        return UserMapper.toUserDto(savedUser);
     }
 
     @Override
@@ -51,7 +49,7 @@ public class UserServiceImpl implements UserService {
 
         log.info("Найдено пользователей: {}", users.size());
         return users.stream()
-                .map(userMapper::toUserDto)
+                .map(UserMapper::toUserDto)
                 .collect(Collectors.toList());
     }
 

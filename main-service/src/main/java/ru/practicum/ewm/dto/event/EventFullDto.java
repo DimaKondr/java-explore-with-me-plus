@@ -1,16 +1,16 @@
 package ru.practicum.ewm.dto.event;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Value;
-import lombok.extern.jackson.Jacksonized;
 import ru.practicum.ewm.dto.category.CategoryDto;
 import ru.practicum.ewm.dto.user.UserShortDto;
 
 @Value
 @Builder
 @Getter
-@Jacksonized
+@AllArgsConstructor
 public class EventFullDto {
     String annotation;
     CategoryDto category;
