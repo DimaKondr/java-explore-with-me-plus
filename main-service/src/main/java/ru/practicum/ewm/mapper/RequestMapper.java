@@ -14,7 +14,7 @@ public class RequestMapper {
 
 //    Преобразование в сущность
 
-    ParticipationRequest toEntity(LocalDateTime nowData, Event event, User requester, EventState status) {
+    public ParticipationRequest toEntity(LocalDateTime nowData, Event event, User requester, EventState status) {
         return ParticipationRequest.builder()
                 .created(nowData)
                 .event(event)
@@ -25,7 +25,7 @@ public class RequestMapper {
 
 //    Преобразование в dto
 
-    ParticipationRequestDto toParticipationRequestDto(ParticipationRequest req) {
+    public ParticipationRequestDto toParticipationRequestDto(ParticipationRequest req) {
         return ParticipationRequestDto.builder()
                 .id(req.getId())
                 .created(req.getCreated().toString())
