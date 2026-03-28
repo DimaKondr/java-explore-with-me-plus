@@ -104,4 +104,14 @@ public class ErrorHandler {
                 ex.getMessage()
         );
     }
+    @ExceptionHandler(ConflictException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ApiError handleConflict(ConflictException ex) {
+        log.error("Conflict: {}", ex.getMessage());
+        return new ApiError(
+                HttpStatus.CONFLICT,
+                "For the requested operation the conditions are not met.",
+                ex.getMessage()
+        );
+    }
 }
