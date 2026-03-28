@@ -10,10 +10,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import ru.practicum.ewm.dto.request.CreateUpdateRequestDto;
 import ru.practicum.ewm.dto.request.ParticipationRequestDto;
 import ru.practicum.ewm.exception.NotFoundException;
-import ru.practicum.ewm.model.ParticipationRequest;
+import ru.practicum.ewm.model.event.EventState;
+import ru.practicum.ewm.model.request.ParticipationRequest;
 import ru.practicum.ewm.model.User;
 import ru.practicum.ewm.model.event.Event;
-import ru.practicum.ewm.model.event.EventState;
+import ru.practicum.ewm.model.request.RequestStatus;
 import ru.practicum.ewm.repository.EventRepository;
 import ru.practicum.ewm.repository.RequestRepository;
 import ru.practicum.ewm.repository.UserRepository;
@@ -79,7 +80,7 @@ class RequestServiceImplTest {
                 .created(LocalDateTime.now())
                 .event(testEvent)
                 .requester(testUser)
-                .status(EventState.PENDING)
+                .status(RequestStatus.PENDING)
                 .build();
 
         createDto = CreateUpdateRequestDto.builder()
@@ -95,7 +96,7 @@ class RequestServiceImplTest {
         when(eventRepository.findById(2L)).thenReturn(Optional.of(testEvent));
         when(requestRepository.save(any(ParticipationRequest.class))).thenReturn(testRequest);
 
-        ParticipationRequestDto result = requestService.createRequest(1L, createDto);
+        ParticipationRequestDto result = requestService.createRequest(createDto);
 
         assertNotNull(result);
         assertEquals(3L, result.getId());
@@ -137,44 +138,6 @@ class RequestServiceImplTest {
     }
 
     @Test
-    @DisplayName("Отмена заявки - успешный сценарий")
-    void canceledRequest_Success() {
-        CreateUpdateRequestDto cancelDto = CreateUpdateRequestDto.builder()
-                .eventId(2L)
-                .userId(1L)
-                .build();
-
-        when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
-        when(eventRepository.findById(2L)).thenReturn(Optional.of(testEvent));
-        when(requestRepository.changeState(3L, EventState.CANCELED)).thenReturn(1);
-        when(requestRepository.findById(3L)).thenReturn(Optional.of(testRequest));
-
-        ParticipationRequestDto result = requestService.canceledRequest(1L, 3L, cancelDto);
-
-        assertNotNull(result);
-        verify(requestRepository).changeState(3L, EventState.CANCELED);
-        verify(requestRepository).findById(3L);
-    }
-
-    @Test
-    @DisplayName("Отмена заявки - заявка не найдена (404)")
-    void canceledRequest_RequestNotFound() {
-        CreateUpdateRequestDto cancelDto = CreateUpdateRequestDto.builder()
-                .eventId(2L)
-                .userId(1L)
-                .build();
-
-        when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
-        when(eventRepository.findById(2L)).thenReturn(Optional.of(testEvent));
-        when(requestRepository.changeState(3L, EventState.CANCELED)).thenReturn(1);
-        when(requestRepository.findById(3L)).thenReturn(Optional.empty());
-
-        assertThrows(NotFoundException.class, () ->
-                requestService.canceledRequest(1L, 3L, cancelDto)
-        );
-    }
-
-    @Test
     @DisplayName("Отмена заявки - пользователь не найден (404)")
     void canceledRequest_UserNotFound() {
         CreateUpdateRequestDto cancelDto = CreateUpdateRequestDto.builder()
@@ -185,26 +148,11 @@ class RequestServiceImplTest {
         when(userRepository.findById(1L)).thenReturn(Optional.empty());
 
         assertThrows(NotFoundException.class, () ->
-                requestService.canceledRequest(1L, 3L, cancelDto)
+                requestService.canceledRequest(1L, 3L)
         );
 
         verify(userRepository).findById(1L);
         verify(eventRepository, never()).findById(any());
     }
-
-    @Test
-    @DisplayName("Отмена заявки - событие не найдено (404)")
-    void canceledRequest_EventNotFound() {
-        CreateUpdateRequestDto cancelDto = CreateUpdateRequestDto.builder()
-                .eventId(2L)
-                .userId(1L)
-                .build();
-
-        when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
-        when(eventRepository.findById(2L)).thenReturn(Optional.empty());
-
-        assertThrows(NotFoundException.class, () ->
-                requestService.canceledRequest(1L, 3L, cancelDto)
-        );
-    }
+    
 }

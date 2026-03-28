@@ -7,10 +7,10 @@ import ru.practicum.ewm.dto.request.CreateUpdateRequestDto;
 import ru.practicum.ewm.dto.request.ParticipationRequestDto;
 import ru.practicum.ewm.exception.NotFoundException;
 import ru.practicum.ewm.mapper.RequestMapper;
-import ru.practicum.ewm.model.ParticipationRequest;
+import ru.practicum.ewm.model.request.ParticipationRequest;
 import ru.practicum.ewm.model.User;
 import ru.practicum.ewm.model.event.Event;
-import ru.practicum.ewm.model.event.EventState;
+import ru.practicum.ewm.model.request.RequestStatus;
 import ru.practicum.ewm.repository.EventRepository;
 import ru.practicum.ewm.repository.RequestRepository;
 import ru.practicum.ewm.repository.UserRepository;
@@ -28,7 +28,7 @@ public class RequestServiceImpl implements RequestService {
     private final EventRepository eventRepository;
 
     @Override
-    public ParticipationRequestDto createRequest(Long userId, CreateUpdateRequestDto dto) {
+    public ParticipationRequestDto createRequest(CreateUpdateRequestDto dto) {
 //        Дата создания
         LocalDateTime nowDate = LocalDateTime.now();
 //        Получение сущностей для создания связей через JPA
@@ -39,7 +39,7 @@ public class RequestServiceImpl implements RequestService {
                 nowDate,
                 event,
                 requester,
-                EventState.PENDING
+                RequestStatus.PENDING
         );
 //        Сохранение
         return RequestMapper.toParticipationRequestDto(
@@ -56,14 +56,13 @@ public class RequestServiceImpl implements RequestService {
     }
 
     @Override
-    public ParticipationRequestDto canceledRequest(Long userId, Long requestId, CreateUpdateRequestDto request) {
+    public ParticipationRequestDto canceledRequest(Long userId, Long requestId) {
 //        Проверка на существование сущностей
         User requester = findUser(userId);
-        Event event = findEvent(request.getEventId());
 
 //        Меняем статус
-        if(requestRepository.changeState(requestId, EventState.CANCELED) > 0)
-            log.info("Статус запроса с id:{}, успешно изменён на {}}", requestId, EventState.CANCELED);
+        if(requestRepository.changeState(requestId, RequestStatus.CANCELED) > 0)
+            log.info("Статус запроса с id:{}, успешно изменён на {}}", requestId, RequestStatus.CANCELED);
 
         return RequestMapper.toParticipationRequestDto(
                 findParticipationRequest(requestId)

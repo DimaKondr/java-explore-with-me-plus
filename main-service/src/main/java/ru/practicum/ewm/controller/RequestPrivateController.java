@@ -23,11 +23,15 @@ public class RequestPrivateController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ParticipationRequestDto createRequest(
-            @PositiveOrZero @PathVariable("userId") Long userId,
-            @Valid @RequestBody CreateUpdateRequestDto request
+            @PathVariable("userId") Long userId,
+            @RequestParam Long eventId
     ) {
         log.info("POST /users/{}/requests - создание запроса на участие:", userId);
-        return requestService.createRequest(userId, request);
+        return requestService.createRequest(
+                CreateUpdateRequestDto.builder()
+                    .userId(userId)
+                    .eventId(eventId).build()
+        );
     }
 
     @GetMapping
@@ -42,11 +46,10 @@ public class RequestPrivateController {
     @PatchMapping("/{requestId}/cancel")
     @ResponseStatus(HttpStatus.OK)
     public ParticipationRequestDto canceledRequest(
-            @PositiveOrZero @PathVariable("userId") Long userId,
             @PositiveOrZero @PathVariable("requestId") Long requestId,
-            @Valid @RequestBody CreateUpdateRequestDto request
+            @PathVariable("userId") Long userId
     ) {
         log.info("PATCH /users/{}/requests/cancel - отмена запроса на участие в событии", userId);
-        return requestService.canceledRequest(userId, requestId, request);
+        return requestService.canceledRequest(userId, requestId);
     }
 }

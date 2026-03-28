@@ -3,8 +3,8 @@ package ru.practicum.ewm.repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
-import ru.practicum.ewm.model.ParticipationRequest;
-import ru.practicum.ewm.model.event.EventState;
+import ru.practicum.ewm.model.request.ParticipationRequest;
+import ru.practicum.ewm.model.request.RequestStatus;
 
 import java.util.List;
 
@@ -23,6 +23,6 @@ public interface RequestRepository extends JpaRepository<ParticipationRequest, L
             SET r.status = :state
             WHERE r.id = :requestId
             """)
-    int changeState(long requestId, EventState state);
+    int changeState(long requestId, RequestStatus state);
 
 }

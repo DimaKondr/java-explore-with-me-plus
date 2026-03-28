@@ -1,12 +1,12 @@
-package ru.practicum.ewm.model;
+package ru.practicum.ewm.model.request;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import ru.practicum.ewm.model.User;
 import ru.practicum.ewm.model.event.Event;
-import ru.practicum.ewm.model.event.EventState;
 
 import java.time.LocalDateTime;
 
@@ -34,5 +34,5 @@ public class ParticipationRequest {
 
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
-    private EventState status;
+    private RequestStatus status;
 }

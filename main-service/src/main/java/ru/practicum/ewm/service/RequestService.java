@@ -8,12 +8,12 @@ import java.util.List;
 public interface RequestService {
 
 //    Создание нового запроса
-    ParticipationRequestDto createRequest(Long userId, CreateUpdateRequestDto request);
+    ParticipationRequestDto createRequest(CreateUpdateRequestDto dto);
 
 //    Получение всех запросов определённого пользователя
     List<ParticipationRequestDto> getRequestByUserId(Long userId);
 
 //    Отмена запроса на событие
-    ParticipationRequestDto canceledRequest(Long userId, Long requestId, CreateUpdateRequestDto request);
+    ParticipationRequestDto canceledRequest(Long userId, Long requestId);
 
 }
