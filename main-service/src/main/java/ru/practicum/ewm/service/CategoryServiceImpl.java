@@ -23,7 +23,6 @@ import java.util.stream.Collectors;
 public class CategoryServiceImpl implements CategoryService {
 
     private final CategoryRepository categoryRepository;
-    private final CategoryMapper categoryMapper;
 
     @Override
     @Transactional
@@ -34,10 +33,10 @@ public class CategoryServiceImpl implements CategoryService {
             throw new ConflictException("Категория с именем '" + request.getName() + "' уже существует");
         }
 
-        Category category = categoryMapper.toEntity(request);
+        Category category = CategoryMapper.toEntity(request);
         Category savedCategory = categoryRepository.save(category);
         log.info("Категория создана с id: {}", savedCategory.getId());
-        return categoryMapper.toCategoryDto(savedCategory);
+        return CategoryMapper.toCategoryDto(savedCategory);
     }
 
     @Override
@@ -83,7 +82,7 @@ public class CategoryServiceImpl implements CategoryService {
         List<Category> categories = categoryRepository.findAll(pageable).getContent();
         log.info("Найдено категорий: {}", categories.size());
         return categories.stream()
-                .map(categoryMapper::toCategoryDto)
+                .map(CategoryMapper::toCategoryDto)
                 .collect(Collectors.toList());
     }
 
@@ -94,6 +93,6 @@ public class CategoryServiceImpl implements CategoryService {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(String.format("Category с id=%d не найден", id)));
 
-        return categoryMapper.toCategoryDto(category);
+        return CategoryMapper.toCategoryDto(category);
     }
 }
