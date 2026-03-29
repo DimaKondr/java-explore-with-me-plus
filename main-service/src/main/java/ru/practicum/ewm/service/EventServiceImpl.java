@@ -146,4 +146,10 @@ public class EventServiceImpl implements EventService {
         );
     }
 
+//    Заглушка
+    @Override
+    public List<EventShortDto> getShortEventsInfoByIds(List<Long> eventIds) {
+        return null;
+    }
+
 }
