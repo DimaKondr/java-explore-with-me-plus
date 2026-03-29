@@ -19,7 +19,6 @@ import java.util.List;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class StatServiceImpl implements StatService {
-
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private final HitRepository hitRepository;
     private final HitMapper hitMapper;
@@ -52,4 +51,5 @@ public class StatServiceImpl implements StatService {
         log.info("Получена статистика: {} записей", stats.size());
         return stats;
     }
+
 }

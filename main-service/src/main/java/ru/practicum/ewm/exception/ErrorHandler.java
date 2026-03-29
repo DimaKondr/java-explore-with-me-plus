@@ -20,7 +20,7 @@ public class ErrorHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ApiError handleValidationExceptions(MethodArgumentNotValidException ex) {
+    public ApiError handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
         List<String> errors = ex.getBindingResult().getAllErrors().stream()
                 .map(error -> {
                     if (error instanceof FieldError fieldError) {
@@ -46,6 +46,28 @@ public class ErrorHandler {
         return new ApiError(
                 HttpStatus.NOT_FOUND,
                 "The required object was not found.",
+                ex.getMessage()
+        );
+    }
+
+    @ExceptionHandler(ValidationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ApiError handleValidation(ValidationException ex) {
+        log.error("Нарушение валидации объекта: {}", ex.getMessage());
+        return new ApiError(
+                HttpStatus.BAD_REQUEST,
+                "Incorrectly made request.",
+                ex.getMessage()
+        );
+    }
+
+    @ExceptionHandler(CreationRulesException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ApiError handleCreationRules(CreationRulesException ex) {
+        log.error("Нарушение правил создания объекта: {}", ex.getMessage());
+        return new ApiError(
+                HttpStatus.CONFLICT,
+                "For the requested operation the conditions are not met.",
                 ex.getMessage()
         );
     }

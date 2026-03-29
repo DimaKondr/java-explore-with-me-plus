@@ -62,7 +62,6 @@ CREATE TABLE IF NOT EXISTS request
     CONSTRAINT fk_request_user FOREIGN KEY (requester_id) REFERENCES users (id)
 );
 
-
 -- Создание таблицы подборок
 CREATE TABLE IF NOT EXISTS compilation
 (
@@ -86,4 +85,3 @@ CREATE TABLE IF NOT EXISTS event_compilation
     CONSTRAINT fk_event_compilation_compilation
         FOREIGN KEY (compilation_id) REFERENCES compilation (id) ON DELETE CASCADE
 );
-

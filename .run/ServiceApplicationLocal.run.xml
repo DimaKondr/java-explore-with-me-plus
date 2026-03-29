@@ -1,8 +1,8 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="ServiceApplicationTests" type="Application" factoryName="Application">
+  <configuration default="false" name="ServiceApplicationLocal" type="Application" factoryName="Application">
     <option name="MAIN_CLASS_NAME" value="ru.practicum.ewm.ServiceApplication" />
     <module name="main-service" />
-    <option name="VM_PARAMETERS" value="-Dspring.profiles.active=test" />
+    <option name="VM_PARAMETERS" value="-Dspring.profiles.active=local" />
     <extension name="coverage">
       <pattern>
         <option name="PATTERN" value="ewm.*" />
