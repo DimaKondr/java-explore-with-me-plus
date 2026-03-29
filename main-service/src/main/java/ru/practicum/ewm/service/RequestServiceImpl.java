@@ -61,7 +61,7 @@ public class RequestServiceImpl implements RequestService {
         User requester = findUser(userId);
 
 //        Меняем статус
-        if(requestRepository.changeState(requestId, RequestStatus.CANCELED) > 0)
+        if (requestRepository.changeState(requestId, RequestStatus.CANCELED) > 0)
             log.info("Статус запроса с id:{}, успешно изменён на {}}", requestId, RequestStatus.CANCELED);
 
         return RequestMapper.toParticipationRequestDto(
@@ -75,12 +75,14 @@ public class RequestServiceImpl implements RequestService {
                 () -> new NotFoundException("User with id " + userId + " not found")
         );
     }
+
 //    Получение события
     private Event findEvent(Long eventId) {
         return eventRepository.findById(eventId).orElseThrow(
                 () -> new NotFoundException("Event with id " + eventId + " not found")
         );
     }
+
 //    Получение запроса
     private ParticipationRequest findParticipationRequest(Long requestId) {
         return requestRepository.findById(requestId).orElseThrow(

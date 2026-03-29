@@ -126,6 +126,7 @@ public class ErrorHandler {
                 ex.getMessage()
         );
     }
+
     @ExceptionHandler(ConflictException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     public ApiError handleConflict(ConflictException ex) {
