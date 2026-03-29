@@ -2,6 +2,8 @@ package ru.practicum.ewm.controller;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -25,7 +27,8 @@ public class EventPrivateController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public EventFullDto addEvent(
-            @PathVariable Long userId,
+            @PathVariable
+                @Positive Long userId,
             @RequestBody
                 @NotNull(message = "Добавляемое событие не может быть null")
                 @Valid NewEventDto dto
@@ -36,9 +39,12 @@ public class EventPrivateController {
 
     @GetMapping
     public List<EventShortDto> getEventsOfUser(
-            @PathVariable Long userId,
-            @RequestParam(defaultValue = "0") Integer from,
-            @RequestParam(defaultValue = "10") Integer size
+            @PathVariable
+                @Positive Long userId,
+            @RequestParam(defaultValue = "0")
+                @PositiveOrZero Integer from,
+            @RequestParam(defaultValue = "10")
+                @Positive Integer size
     ) {
         log.info("Получение списка из {} событий пользователя с ID: {}. Пропускаем {} элементов. ", size, userId, from);
         return eventService.getEventsOfUser(userId, from, size);
@@ -46,8 +52,10 @@ public class EventPrivateController {
 
     @GetMapping("/{eventId}")
     public EventFullDto getEventById(
-            @PathVariable Long userId,
-            @PathVariable Long eventId
+            @PathVariable
+                @Positive Long userId,
+            @PathVariable
+                @Positive Long eventId
     ) {
         log.info("Получение пользователем с ID: {} созданного им события с ID: {}. ", userId, eventId);
         return eventService.getEventById(userId, eventId);
