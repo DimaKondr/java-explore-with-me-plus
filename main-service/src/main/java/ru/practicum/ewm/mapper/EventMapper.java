@@ -1,9 +1,8 @@
 package ru.practicum.ewm.mapper;
 
 import lombok.experimental.UtilityClass;
-import ru.practicum.ewm.dto.category.CategoryDto;
+import ru.practicum.ewm.constants.Constants;
 import ru.practicum.ewm.dto.event.*;
-import ru.practicum.ewm.dto.user.UserShortDto;
 import ru.practicum.ewm.model.Category;
 import ru.practicum.ewm.model.User;
 import ru.practicum.ewm.model.event.Event;
@@ -11,13 +10,11 @@ import ru.practicum.ewm.model.event.EventState;
 import ru.practicum.ewm.model.event.Location;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 @UtilityClass
 public class EventMapper {
-    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-    Event dtoToEvent(
+    public Event dtoToEvent(
             NewEventDto eventDto,
             Category category,
             LocalDateTime createdOn,
@@ -31,7 +28,7 @@ public class EventMapper {
                 .category(category)
                 .createdOn(createdOn)
                 .description(eventDto.getDescription())
-                .eventDate(LocalDateTime.parse(eventDto.getEventDate(), formatter))
+                .eventDate(LocalDateTime.parse(eventDto.getEventDate(), Constants.FORMATTER))
                 .initiator(initiator)
                 .location(location)
                 .paid(eventDto.getPaid())
@@ -43,7 +40,7 @@ public class EventMapper {
                 .build();
     }
 
-    EventFullDto eventToFullDto(
+    public EventFullDto eventToFullDto(
             Event event,
             Long confirmedRequests,
             Long views
@@ -52,15 +49,15 @@ public class EventMapper {
                 .annotation(event.getAnnotation())
                 .category(CategoryMapper.toCategoryDto(event.getCategory()))
                 .confirmedRequests(confirmedRequests)
-                .createdOn(event.getCreatedOn().format(formatter))
+                .createdOn(event.getCreatedOn().format(Constants.FORMATTER))
                 .description(event.getDescription())
-                .eventDate(event.getEventDate().format(formatter))
+                .eventDate(event.getEventDate().format(Constants.FORMATTER))
                 .id(event.getId())
                 .initiator(UserMapper.toUserShortDto(event.getInitiator()))
                 .location(LocationMapper.locationToDto(event.getLocation()))
                 .paid(event.getPaid())
                 .participantLimit(event.getParticipantLimit())
-                .publishedOn(event.getPublishedOn().format(formatter))
+                .publishedOn(event.getPublishedOn().format(Constants.FORMATTER))
                 .requestModeration(event.getRequestModeration())
                 .state(event.getState().toString())
                 .title(event.getTitle())
@@ -68,7 +65,7 @@ public class EventMapper {
                 .build();
     }
 
-    EventShortDto eventToShortDto(
+    public EventShortDto eventToShortDto(
             Event event,
             Long confirmedRequests,
             Long views
@@ -77,7 +74,7 @@ public class EventMapper {
                 .annotation(event.getAnnotation())
                 .category(CategoryMapper.toCategoryDto(event.getCategory()))
                 .confirmedRequests(confirmedRequests)
-                .eventDate(event.getEventDate().format(formatter))
+                .eventDate(event.getEventDate().format(Constants.FORMATTER))
                 .id(event.getId())
                 .initiator(UserMapper.toUserShortDto(event.getInitiator()))
                 .paid(event.getPaid())

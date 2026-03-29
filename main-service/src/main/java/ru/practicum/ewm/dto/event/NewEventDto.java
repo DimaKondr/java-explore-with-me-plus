@@ -1,17 +1,16 @@
 package ru.practicum.ewm.dto.event;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Value;
-import lombok.extern.jackson.Jacksonized;
+import lombok.*;
 
-@Value
 @Builder
 @Getter
+@Setter
+@ToString
+@EqualsAndHashCode
 @AllArgsConstructor
 public class NewEventDto {
 
@@ -30,6 +29,7 @@ public class NewEventDto {
     String eventDate;
 
     @NotNull(message = "Координаты локации события не должны быть null")
+    @Valid
     LocationDto location;
 
     @NotNull(message = "Условие платно ли участие в событии не должно быть null")

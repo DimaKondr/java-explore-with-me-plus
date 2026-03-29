@@ -2,10 +2,10 @@ package ru.practicum.ewm.mapper;
 
 import lombok.experimental.UtilityClass;
 import ru.practicum.ewm.dto.request.ParticipationRequestDto;
-import ru.practicum.ewm.model.request.ParticipationRequest;
+import ru.practicum.ewm.model.ParticipationRequest;
 import ru.practicum.ewm.model.User;
 import ru.practicum.ewm.model.event.Event;
-import ru.practicum.ewm.model.request.RequestStatus;
+import ru.practicum.ewm.model.event.EventState;
 
 import java.time.LocalDateTime;
 

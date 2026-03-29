@@ -7,14 +7,14 @@ import ru.practicum.ewm.model.event.Location;
 @UtilityClass
 public class LocationMapper {
 
-    Location dtoToLocation(LocationDto dto) {
+    public Location dtoToLocation(LocationDto dto) {
         return Location.builder()
                 .lat(dto.getLat())
                 .lon(dto.getLon())
                 .build();
     }
 
-    LocationDto locationToDto(Location location) {
+    public LocationDto locationToDto(Location location) {
         return LocationDto.builder()
                 .lat(location.getLat())
                 .lon(location.getLon())

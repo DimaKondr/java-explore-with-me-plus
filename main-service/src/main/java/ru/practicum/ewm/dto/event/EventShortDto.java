@@ -1,13 +1,14 @@
 package ru.practicum.ewm.dto.event;
 
 import lombok.*;
-import lombok.extern.jackson.Jacksonized;
 import ru.practicum.ewm.dto.category.CategoryDto;
 import ru.practicum.ewm.dto.user.UserShortDto;
 
 @Value
 @Builder
 @Getter
+@ToString
+@EqualsAndHashCode
 @AllArgsConstructor
 public class EventShortDto {
     String annotation;

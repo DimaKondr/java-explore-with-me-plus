@@ -10,5 +10,5 @@ import org.springframework.transaction.annotation.Transactional;
         properties = "jdbc.url=jdbc:h2:mem:ewm-main-service-test",
         webEnvironment = SpringBootTest.WebEnvironment.NONE)
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-public class ServiceApplicationTests {
+public class EventServiceImplTests {
 }

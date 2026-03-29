@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Value;
-import lombok.extern.jackson.Jacksonized;
 import ru.practicum.ewm.annotation.NotBlankOrNull;
 
 @Value

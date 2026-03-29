@@ -1,5 +1,6 @@
 package ru.practicum;
 
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpHeaders;
@@ -18,7 +19,6 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 @Slf4j
 @Component
 public class StatClientImpl implements StatClient {
-
     private final RestClient restClient;
 
     public StatClientImpl(RestClient.Builder builder) {

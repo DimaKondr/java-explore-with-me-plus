@@ -1,7 +1,6 @@
 package ru.practicum.ewm.mapper;
 
 import lombok.experimental.UtilityClass;
-import org.springframework.stereotype.Component;
 import ru.practicum.ewm.dto.category.CategoryDto;
 import ru.practicum.ewm.dto.category.NewCategoryRequest;
 import ru.practicum.ewm.model.Category;

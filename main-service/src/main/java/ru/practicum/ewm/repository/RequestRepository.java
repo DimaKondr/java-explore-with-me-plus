@@ -25,4 +25,5 @@ public interface RequestRepository extends JpaRepository<ParticipationRequest, L
             """)
     int changeState(long requestId, RequestStatus state);
 
+    Long countByEvent_IdAndStatus(Long eventId, String status);
 }
