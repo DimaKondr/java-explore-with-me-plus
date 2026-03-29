@@ -9,20 +9,20 @@ import ru.practicum.ewm.model.Category;
 @UtilityClass
 public class CategoryMapper {
 
-    Category toEntity(NewCategoryRequest request) {
+    public Category toEntity(NewCategoryRequest request) {
         Category category = new Category();
         category.setName(request.getName());
         return category;
     }
 
-    Category toEntity(CategoryDto dto) {
+    public Category toEntity(CategoryDto dto) {
         Category category = new Category();
         category.setId(dto.getId());
         category.setName(dto.getName());
         return category;
     }
 
-    CategoryDto toCategoryDto(Category category) {
+    public CategoryDto toCategoryDto(Category category) {
         return new CategoryDto(
                 category.getId(),
                 category.getName()
