@@ -14,5 +14,5 @@ public interface CategoryService {
 
     List<CategoryDto> getCategories(Integer from, Integer size);
 
-    CategoryDto getCategory (Long id);
+    CategoryDto getCategory(Long id);
 }

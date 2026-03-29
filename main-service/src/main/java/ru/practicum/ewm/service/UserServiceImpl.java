@@ -9,9 +9,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.dto.user.NewUserRequest;
 import ru.practicum.ewm.dto.user.UserDto;
+import ru.practicum.ewm.exception.NotFoundException;
 import ru.practicum.ewm.mapper.UserMapper;
 import ru.practicum.ewm.model.User;
-import ru.practicum.ewm.exception.NotFoundException;
 import ru.practicum.ewm.repository.UserRepository;
 
 import java.util.List;

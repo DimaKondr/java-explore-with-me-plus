@@ -7,9 +7,9 @@ import ru.practicum.ewm.dto.request.CreateUpdateRequestDto;
 import ru.practicum.ewm.dto.request.ParticipationRequestDto;
 import ru.practicum.ewm.exception.NotFoundException;
 import ru.practicum.ewm.mapper.RequestMapper;
-import ru.practicum.ewm.model.request.ParticipationRequest;
 import ru.practicum.ewm.model.User;
 import ru.practicum.ewm.model.event.Event;
+import ru.practicum.ewm.model.request.ParticipationRequest;
 import ru.practicum.ewm.model.request.RequestStatus;
 import ru.practicum.ewm.repository.EventRepository;
 import ru.practicum.ewm.repository.RequestRepository;
@@ -69,21 +69,21 @@ public class RequestServiceImpl implements RequestService {
         );
     }
 
-//    Получение пользователя
+    //    Получение пользователя
     private User findUser(Long userId) {
         return userRepository.findById(userId).orElseThrow(
                 () -> new NotFoundException("User with id " + userId + " not found")
         );
     }
 
-//    Получение события
+    //    Получение события
     private Event findEvent(Long eventId) {
         return eventRepository.findById(eventId).orElseThrow(
                 () -> new NotFoundException("Event with id " + eventId + " not found")
         );
     }
 
-//    Получение запроса
+    //    Получение запроса
     private ParticipationRequest findParticipationRequest(Long requestId) {
         return requestRepository.findById(requestId).orElseThrow(
                 () -> new NotFoundException("Request with id " + requestId + " not found")
