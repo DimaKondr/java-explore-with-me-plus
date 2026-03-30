@@ -6,6 +6,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import ru.practicum.ewm.dto.category.CategoryDto;
 import ru.practicum.ewm.dto.category.NewCategoryRequest;
 import ru.practicum.ewm.exception.ConflictException;
@@ -170,5 +174,61 @@ class CategoryServiceImplTest {
                 .hasMessage("Невозможно удалить категорию, так как с ней связаны события");
 
         verify(categoryRepository, never()).deleteById(anyLong());
+    }
+
+    @Test
+    void getCategoriesShouldReturnListOfCategories() {
+        int from = 0;
+        int size = 10;
+        List<Category> categories = List.of(category);
+        Pageable expectedPageable = PageRequest.of(0, 10);
+        Page<Category> page = new PageImpl<>(categories);
+
+        when(categoryRepository.findAll(expectedPageable)).thenReturn(page);
+
+        List<CategoryDto> result = categoryService.getCategories(from, size);
+
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).getId()).isEqualTo(1L);
+        assertThat(result.get(0).getName()).isEqualTo("Концерты");
+
+        verify(categoryRepository, times(1)).findAll(expectedPageable);
+    }
+
+    @Test
+    void getCategoriesWithPagination() {
+        // given
+        int from = 20;  // 20/10 = страница 2
+        int size = 10;
+        Pageable expectedPageable = PageRequest.of(2, 10);
+
+        when(categoryRepository.findAll(expectedPageable)).thenReturn(Page.empty());
+
+        categoryService.getCategories(from, size);
+
+        verify(categoryRepository, times(1)).findAll(expectedPageable);
+    }
+
+    @Test
+    void getCategoriesWhenNoCategories() {
+        int from = 0;
+        int size = 10;
+        Pageable expectedPageable = PageRequest.of(0, 10);
+
+        when(categoryRepository.findAll(expectedPageable)).thenReturn(Page.empty());
+
+        List<CategoryDto> result = categoryService.getCategories(from, size);
+
+        assertThat(result).isEmpty();
+    }
+
+    @Test
+    void getCategoriesWithZeroSize() {
+        int from = 0;
+        int size = 0;
+
+        List<CategoryDto> result = categoryService.getCategories(from, size);
+
+        assertThat(result).isEmpty();
     }
 }

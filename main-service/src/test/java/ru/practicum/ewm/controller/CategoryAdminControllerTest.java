@@ -45,7 +45,7 @@ class CategoryAdminControllerTest {
     }
 
     @Test
-    void createCategory_ShouldReturnCreatedCategory() throws Exception {
+    void createCategory() throws Exception {
         when(categoryService.createCategory(any(NewCategoryRequest.class)))
                 .thenReturn(categoryDto);
 
@@ -60,7 +60,7 @@ class CategoryAdminControllerTest {
     }
 
     @Test
-    void createCategory_WithEmptyName_ShouldReturnBadRequest() throws Exception {
+    void createCategoryWithEmptyName() throws Exception {
         NewCategoryRequest invalidRequest = new NewCategoryRequest();
         invalidRequest.setName("");
 
@@ -71,7 +71,7 @@ class CategoryAdminControllerTest {
     }
 
     @Test
-    void createCategory_WithDuplicateName_ShouldReturnConflict() throws Exception {
+    void createCategoryWithDuplicateName() throws Exception {
         when(categoryService.createCategory(any(NewCategoryRequest.class)))
                 .thenThrow(new ConflictException("Категория с именем 'Концерты' уже существует"));
 
@@ -79,11 +79,11 @@ class CategoryAdminControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(newCategoryRequest)))
                 .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.status").value("CONFLICT"));
+                .andExpect(jsonPath("$.status").value("409 CONFLICT"));
     }
 
     @Test
-    void updateCategory_ShouldReturnUpdatedCategory() throws Exception {
+    void updateCategory() throws Exception {
         CategoryDto updatedDto = new CategoryDto(1L, "Спектакли");
 
         when(categoryService.updateCategory(eq(1L), any(CategoryDto.class)))
@@ -100,7 +100,7 @@ class CategoryAdminControllerTest {
     }
 
     @Test
-    void updateCategory_WithNonExistentId_ShouldReturnNotFound() throws Exception {
+    void updateCategoryWithNonExistentId() throws Exception {
         CategoryDto updateDto = new CategoryDto(999L, "Спектакли");
 
         when(categoryService.updateCategory(eq(999L), any(CategoryDto.class)))
@@ -110,11 +110,11 @@ class CategoryAdminControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updateDto)))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.status").value("NOT_FOUND"));
+                .andExpect(jsonPath("$.status").value("404 NOT_FOUND"));
     }
 
     @Test
-    void deleteCategory_ShouldReturnNoContent() throws Exception {
+    void deleteCategory() throws Exception {
         doNothing().when(categoryService).deleteCategory(1L);
 
         mockMvc.perform(delete("/admin/categories/1"))
@@ -124,13 +124,13 @@ class CategoryAdminControllerTest {
     }
 
     @Test
-    void deleteCategory_WithNonExistentId_ShouldReturnNotFound() throws Exception {
+    void deleteCategoryWithNonExistentId() throws Exception {
         doThrow(new NotFoundException("Категория с id=999 не найдена"))
                 .when(categoryService).deleteCategory(999L);
 
         mockMvc.perform(delete("/admin/categories/999"))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.status").value("NOT_FOUND"));
+                .andExpect(jsonPath("$.status").value("404 NOT_FOUND"));
     }
 
 }

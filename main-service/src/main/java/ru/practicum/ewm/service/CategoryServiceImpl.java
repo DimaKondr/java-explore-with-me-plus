@@ -2,6 +2,7 @@ package ru.practicum.ewm.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -78,8 +79,19 @@ public class CategoryServiceImpl implements CategoryService {
     public List<CategoryDto> getCategories(Integer from, Integer size) {
         log.info("Получение категорий: from = {}, size = {}", from, size);
 
-        Pageable pageable = PageRequest.of(from / size, size);
-        List<Category> categories = categoryRepository.findAll(pageable).getContent();
+        if (size == null || size <= 0) {
+            return List.of();
+        }
+        if (from == null || from < 0) {
+            from = 0;
+        }
+
+        int page = from / size;
+        Pageable pageable = PageRequest.of(page, size);
+
+        Page<Category> pageResult = categoryRepository.findAll(pageable);
+        List<Category> categories = pageResult.getContent();
+
         log.info("Найдено категорий: {}", categories.size());
         return categories.stream()
                 .map(CategoryMapper::toCategoryDto)
