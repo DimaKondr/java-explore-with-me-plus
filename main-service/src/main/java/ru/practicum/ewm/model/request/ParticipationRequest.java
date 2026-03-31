@@ -1,10 +1,7 @@
 package ru.practicum.ewm.model.request;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import ru.practicum.ewm.model.User;
 import ru.practicum.ewm.model.event.Event;
 
@@ -13,6 +10,7 @@ import java.time.LocalDateTime;
 @Entity
 @Builder
 @Getter
+@Setter
 @Table(name = "request")
 @AllArgsConstructor
 @NoArgsConstructor

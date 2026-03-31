@@ -1,15 +1,14 @@
 package ru.practicum.ewm.dto.event;
 
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Value;
+import lombok.*;
 import ru.practicum.ewm.annotation.NotBlankOrNull;
 
 @Value
 @Builder
 @Getter
+@ToString
+@EqualsAndHashCode
 @AllArgsConstructor
 public class UpdateEventAdminRequest {
 
