@@ -3,6 +3,7 @@ package ru.practicum.ewm.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.dto.request.CreateUpdateRequestDto;
 import ru.practicum.ewm.dto.request.ParticipationRequestDto;
 import ru.practicum.ewm.exception.NotFoundException;
@@ -27,6 +28,7 @@ public class RequestServiceImpl implements RequestService {
     private final UserRepository userRepository;
     private final EventRepository eventRepository;
 
+    @Transactional
     @Override
     public ParticipationRequestDto createRequest(CreateUpdateRequestDto dto) {
 //        Дата создания
@@ -55,6 +57,7 @@ public class RequestServiceImpl implements RequestService {
                 .toList();
     }
 
+    @Transactional
     @Override
     public ParticipationRequestDto canceledRequest(Long userId, Long requestId) {
 //        Проверка на существование сущностей
