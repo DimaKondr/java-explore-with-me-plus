@@ -2,15 +2,21 @@ package ru.practicum.ewm.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.dto.category.CategoryDto;
 import ru.practicum.ewm.dto.category.NewCategoryRequest;
 import ru.practicum.ewm.exception.ConflictException;
 import ru.practicum.ewm.exception.NotFoundException;
+import ru.practicum.ewm.mapper.CategoryMapper;
 import ru.practicum.ewm.model.Category;
 import ru.practicum.ewm.repository.CategoryRepository;
-import ru.practicum.ewm.mapper.CategoryMapper;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -31,7 +37,6 @@ public class CategoryServiceImpl implements CategoryService {
         Category category = CategoryMapper.toEntity(request);
         Category savedCategory = categoryRepository.save(category);
         log.info("Категория создана с id: {}", savedCategory.getId());
-
         return CategoryMapper.toCategoryDto(savedCategory);
     }
 
@@ -68,5 +73,38 @@ public class CategoryServiceImpl implements CategoryService {
 
         categoryRepository.deleteById(catId);
         log.info("Категория с id: {} удалена", catId);
+    }
+
+    @Override
+    public List<CategoryDto> getCategories(Integer from, Integer size) {
+        log.info("Получение категорий: from = {}, size = {}", from, size);
+
+        if (size == null || size <= 0) {
+            return List.of();
+        }
+        if (from == null || from < 0) {
+            from = 0;
+        }
+
+        int page = from / size;
+        Pageable pageable = PageRequest.of(page, size);
+
+        Page<Category> pageResult = categoryRepository.findAll(pageable);
+        List<Category> categories = pageResult.getContent();
+
+        log.info("Найдено категорий: {}", categories.size());
+        return categories.stream()
+                .map(CategoryMapper::toCategoryDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public CategoryDto getCategory(Long id) {
+        log.info("Получение категории с id: {}", id);
+
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException(String.format("Category с id=%d не найден", id)));
+
+        return CategoryMapper.toCategoryDto(category);
     }
 }

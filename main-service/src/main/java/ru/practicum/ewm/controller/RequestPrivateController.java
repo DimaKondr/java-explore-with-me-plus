@@ -28,8 +28,8 @@ public class RequestPrivateController {
         log.info("POST /users/{}/requests - создание запроса на участие:", userId);
         return requestService.createRequest(
                 CreateUpdateRequestDto.builder()
-                    .userId(userId)
-                    .eventId(eventId).build()
+                        .userId(userId)
+                        .eventId(eventId).build()
         );
     }
 
