@@ -1,8 +1,6 @@
 package ru.practicum.ewm.service;
 
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.BadRequestException;
-import org.aspectj.weaver.ast.Not;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.dto.compilation.CompilationDto;
@@ -42,7 +40,7 @@ public class CompilationServiceImpl implements CompilationService {
                 () -> new NotFoundException("Compilation not found")
         );
         List<Event> events = eventRep.findAllById(dto.getEvents());
-        if(events.size() != dto.getEvents().size())
+        if (events.size() != dto.getEvents().size())
             throw new NotFoundException("Часть переданных событий не существует");
         Compilation comp = update(old, dto, events);
         return CompilationMapper.toCompilationDto(
@@ -54,7 +52,7 @@ public class CompilationServiceImpl implements CompilationService {
     @Transactional
     @Override
     public void removeCompilation(Long compId) {
-        if(!compRep.existsById(compId))
+        if (!compRep.existsById(compId))
             throw new NotFoundException("Compilation not found");
         compRep.deleteById(compId);
     }

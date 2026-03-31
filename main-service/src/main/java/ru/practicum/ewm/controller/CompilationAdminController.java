@@ -8,13 +8,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.dto.compilation.CompilationDto;
 import ru.practicum.ewm.dto.compilation.CreateCompilationDto;
-import ru.practicum.ewm.dto.request.CreateUpdateRequestDto;
-import ru.practicum.ewm.dto.request.ParticipationRequestDto;
 import ru.practicum.ewm.mapper.CompilationMapper;
 import ru.practicum.ewm.service.CompilationService;
-import ru.practicum.ewm.service.RequestService;
-
-import java.util.List;
 
 @Slf4j
 @RestController
