@@ -1,31 +1,37 @@
 package ru.practicum.ewm.dto.event;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Value;
+import lombok.*;
 import ru.practicum.ewm.annotation.NotBlankOrNull;
 
 @Value
 @Builder
 @Getter
+@ToString
+@EqualsAndHashCode
 @AllArgsConstructor
 public class UpdateEventUserRequest {
 
     @NotBlankOrNull
     @Size(min = 20, max = 2000, message = "Длина аннотации должна быть не менее 20 и не более 2000 символов")
     String annotation;
-    Long categoryId;
+    Long category;
 
     @NotBlankOrNull
     @Size(min = 20, max = 7000, message = "Длина описания события должна быть не менее 20 и не более 7000 символов")
     String description;
+
+    @NotBlankOrNull
     String eventDate;
+
+    @Valid
     LocationDto location;
     Boolean paid;
     Integer participantLimit;
     Boolean requestModeration;
+
+    @NotBlankOrNull
     String stateAction;
 
     @NotBlankOrNull

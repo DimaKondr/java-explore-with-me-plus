@@ -9,9 +9,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.ewm.dto.event.EventFullDto;
-import ru.practicum.ewm.dto.event.EventShortDto;
-import ru.practicum.ewm.dto.event.NewEventDto;
+import ru.practicum.ewm.dto.event.*;
+import ru.practicum.ewm.dto.request.ParticipationRequestDto;
 import ru.practicum.ewm.service.EventService;
 
 import java.util.List;
@@ -59,6 +58,47 @@ public class EventPrivateController {
     ) {
         log.info("Получение пользователем с ID: {} созданного им события с ID: {}. ", userId, eventId);
         return eventService.getEventById(userId, eventId);
+    }
+
+    @PatchMapping("/{eventId}")
+    public EventFullDto patchEventById(
+            @PathVariable
+                @Positive Long userId,
+            @PathVariable
+                @Positive Long eventId,
+            @RequestBody
+                @NotNull(message = "Данные для обновления события не могут быть null")
+                @Valid UpdateEventUserRequest dto
+    ) {
+        log.info("Обновление пользователем с ID: {} созданного им события с ID: {}. ", userId, eventId);
+        return eventService.patchEventById(userId, eventId, dto);
+    }
+
+    @GetMapping("/{eventId}/requests")
+    public List<ParticipationRequestDto> getRequestsOfEvent(
+            @PathVariable
+                @Positive Long userId,
+            @PathVariable
+                @Positive Long eventId
+    ) {
+        log.info("Получение пользователем с ID: {} запросов на участие в созданном им событии с ID: {}. ",
+                userId, eventId);
+        return eventService.getRequestsOfEvent(userId, eventId);
+    }
+
+    @PatchMapping("/{eventId}/requests")
+    public EventRequestStatusUpdateResult patchRequestsStatusOfEvent(
+            @PathVariable
+                @Positive Long userId,
+            @PathVariable
+                @Positive Long eventId,
+            @RequestBody
+                @NotNull(message = "Данные для обновления события не могут быть null")
+                @Valid EventRequestStatusUpdateRequest dto
+    ) {
+        log.info("Обновление пользователем с ID: {} статусов запросов на участие в созданном им событии с ID: {}. ",
+                userId, eventId);
+        return eventService.patchRequestsStatusOfEvent(userId, eventId, dto);
     }
 
 }
