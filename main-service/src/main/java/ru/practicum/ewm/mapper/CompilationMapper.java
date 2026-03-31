@@ -15,7 +15,7 @@ public class CompilationMapper {
 
 //    Преобразование в сущность
 
-    Compilation toEntity(CreateCompilationDto dto, List<Event> events) {
+    public Compilation toEntity(CreateCompilationDto dto, List<Event> events) {
         return Compilation.builder()
                 .events(events)
                 .pinned(dto.getPinned())
@@ -23,7 +23,7 @@ public class CompilationMapper {
                 .build();
     }
 
-    Compilation toEntity(UpdateCompilationDto dto, List<Event> events) {
+    public Compilation toEntity(UpdateCompilationDto dto, List<Event> events) {
         return Compilation.builder()
                 .id(dto.getId())
                 .events(events)
@@ -34,7 +34,7 @@ public class CompilationMapper {
 
 //    Преобразование в dto
 
-    CompilationDto toCompilationDto(Compilation compilation, List<EventShortDto> events) {
+    public CompilationDto toCompilationDto(Compilation compilation, List<EventShortDto> events) {
         return CompilationDto.builder()
                 .id(compilation.getId())
                 .events(events)
@@ -42,4 +42,14 @@ public class CompilationMapper {
                 .title(compilation.getTitle())
                 .build();
     }
+
+    public UpdateCompilationDto toUpdateCompilationDto(Long compId, CreateCompilationDto dto) {
+        return UpdateCompilationDto.builder()
+                .id(compId)
+                .events(dto.getEvents())
+                .pinned(dto.getPinned())
+                .title(dto.getTitle())
+                .build();
+    }
+
 }

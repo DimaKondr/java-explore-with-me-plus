@@ -14,4 +14,6 @@ public interface EventService {
 
     EventFullDto getEventById(Long userId, Long eventId);
 
+    List<EventShortDto> getShortEventsInfoByIds(List<Long> eventIds);
+
 }
