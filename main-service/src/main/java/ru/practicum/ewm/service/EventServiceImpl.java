@@ -246,7 +246,7 @@ public class EventServiceImpl implements EventService {
                     "Событие с ID: " + eventId + " не найдено.");
         }
 
-        List<ParticipationRequest> requests = requestRepository.findAllWhereEvent_Id(eventId);
+        List<ParticipationRequest> requests = requestRepository.findAllByEvent_Id(eventId);
         if (requests == null || requests.isEmpty()) {
             log.info("Получение запросов на участие в событии. По событию с ID: {} запросов не найдено.", eventId);
             return new ArrayList<>();
