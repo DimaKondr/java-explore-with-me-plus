@@ -102,7 +102,7 @@ public class EventServiceImpl implements EventService {
         List<EventShortDto> result = new ArrayList<>();
         for (int i = 0; i < events.size(); i++) {
             Long confirmedRequests = requestRepository.countByEvent_IdAndStatus(events.get(i).getId(),
-                    RequestStatus.APPROVED.toString());
+                    RequestStatus.CONFIRMED.toString());
             EventShortDto eventShortDto = EventMapper.eventToShortDto(events.get(i),
                     stats.get(i).getHits(), confirmedRequests);
             result.add(eventShortDto);
@@ -119,7 +119,7 @@ public class EventServiceImpl implements EventService {
         return EventMapper.eventToFullDto(
                 event,
                 requestRepository.countByEvent_IdAndStatus(eventId,
-                        RequestStatus.APPROVED.toString()),
+                        RequestStatus.CONFIRMED.toString()),
                 stats.getFirst().getHits()
         );
     }
@@ -136,7 +136,7 @@ public class EventServiceImpl implements EventService {
         List<EventShortDto> result = new ArrayList<>();
         for (int i = 0; i < events.size(); i++) {
             Long confirmedRequests = requestRepository.countByEvent_IdAndStatus(events.get(i).getId(),
-                    RequestStatus.APPROVED.toString());
+                    RequestStatus.CONFIRMED.toString());
             EventShortDto eventShortDto = EventMapper.eventToShortDto(events.get(i),
                     stats.get(i).getHits(), confirmedRequests);
             result.add(eventShortDto);
@@ -226,7 +226,7 @@ public class EventServiceImpl implements EventService {
         return EventMapper.eventToFullDto(
                 patchedEvent,
                 requestRepository.countByEvent_IdAndStatus(eventId,
-                        RequestStatus.APPROVED.toString()),
+                        RequestStatus.CONFIRMED.toString()),
                 stats.getFirst().getHits()
         );
 
@@ -265,7 +265,7 @@ public class EventServiceImpl implements EventService {
         Event event = eventRepository.findById(eventId).orElseThrow(() -> new NotFoundException(
                 "Обновление данных события. Событие с ID: " + eventId + " не найдено."));
         Long participantLimit = event.getParticipantLimit().longValue();
-        Long approvedRequestsCount = requestRepository.countByEvent_IdAndStatus(eventId, RequestStatus.APPROVED.toString());
+        Long approvedRequestsCount = requestRepository.countByEvent_IdAndStatus(eventId, RequestStatus.CONFIRMED.toString());
 
         if (participantLimit.equals(approvedRequestsCount)) {
             log.error("Обновление статусов заявок на участие в событии. " +
@@ -294,7 +294,7 @@ public class EventServiceImpl implements EventService {
 
         for (ParticipationRequest request : requests) {
             if (approvedRequestsCount < participantLimit) {
-                request.setStatus(RequestStatus.APPROVED);
+                request.setStatus(RequestStatus.CONFIRMED);
                 approvedRequests.add(request);
                 approvedRequestsCount++;
             } else {

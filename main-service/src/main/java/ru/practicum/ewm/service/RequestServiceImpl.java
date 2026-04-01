@@ -63,10 +63,10 @@ public class RequestServiceImpl implements RequestService {
 
         // Проверка лимита участников
         Long approvedRequestsCount = requestRepository.countByEvent_IdAndStatus(
-                event.getId(), RequestStatus.APPROVED.toString());
+                event.getId(), RequestStatus.CONFIRMED.toString());
 
         if (event.getParticipantLimit() > 0 && approvedRequestsCount >= event.getParticipantLimit()) {
-            log.error("Достигнут лимит участников для event {}. Limit: {}, Approved: {}",
+            log.error("Достигнут лимит участников для event {}. Limit: {}, CONFIRMED: {}",
                     event.getId(), event.getParticipantLimit(), approvedRequestsCount);
             throw new ConflictException(String.format("Достигнут лимит участников. Limit=%d, Approved=%d", event.getParticipantLimit(), approvedRequestsCount));
         }
@@ -90,7 +90,7 @@ public class RequestServiceImpl implements RequestService {
                 initialStatus
         );
 
-        log.info("оздание запроса для userId={} с eventId={} со statusid={}",
+        log.info("оздание запроса для userId={} с eventId={} со statusId={}",
                 requester.getId(), event.getId(), initialStatus);
 //        Сохранение
         return RequestMapper.toParticipationRequestDto(
