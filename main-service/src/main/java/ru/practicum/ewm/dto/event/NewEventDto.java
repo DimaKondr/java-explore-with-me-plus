@@ -3,6 +3,7 @@ package ru.practicum.ewm.dto.event;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
@@ -35,7 +36,7 @@ public class NewEventDto {
     @NotNull(message = "Условие платно ли участие в событии не должно быть null")
     Boolean paid;
 
-    @NotNull(message = "Количество участников в событии не должно быть null")
+    @PositiveOrZero(message = "Лимит участников не может быть отрицательным")
     Integer participantLimit;
 
     @NotNull(message = "Условие необходимости пре-модерации не должно быть null")

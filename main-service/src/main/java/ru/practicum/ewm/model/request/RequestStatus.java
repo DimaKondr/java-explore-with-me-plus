@@ -2,7 +2,8 @@ package ru.practicum.ewm.model.request;
 
 public enum RequestStatus {
     PENDING,
-    APPROVED,
+    CONFIRMED,
     REJECTED,
     CANCELED
 }
+

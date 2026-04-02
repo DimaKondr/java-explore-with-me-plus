@@ -7,6 +7,7 @@ import ru.practicum.ewm.model.request.ParticipationRequest;
 import ru.practicum.ewm.model.request.RequestStatus;
 
 import java.util.List;
+import java.util.Optional;
 
 @SuppressWarnings("checkstyle:Regexp")
 @Repository
@@ -28,8 +29,9 @@ public interface RequestRepository extends JpaRepository<ParticipationRequest, L
 
     Long countByEvent_IdAndStatus(Long eventId, String status);
 
-    List<ParticipationRequest> findAllWhereEvent_Id(Long eventId);
+    List<ParticipationRequest> findAllByEvent_Id(Long eventId);
 
     List<ParticipationRequest> findAllByIdInAndStatusOrderByCreatedAsc(List<Long> requestsIds, String status);
 
+    Optional<ParticipationRequest> findByRequester_IdAndEvent_Id(Long userId, Long eventId);
 }

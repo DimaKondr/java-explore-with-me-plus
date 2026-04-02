@@ -6,10 +6,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.dto.request.CreateUpdateRequestDto;
 import ru.practicum.ewm.dto.request.ParticipationRequestDto;
+import ru.practicum.ewm.exception.ConflictException;
 import ru.practicum.ewm.exception.NotFoundException;
 import ru.practicum.ewm.mapper.RequestMapper;
 import ru.practicum.ewm.model.User;
 import ru.practicum.ewm.model.event.Event;
+import ru.practicum.ewm.model.event.EventState;
 import ru.practicum.ewm.model.request.ParticipationRequest;
 import ru.practicum.ewm.model.request.RequestStatus;
 import ru.practicum.ewm.repository.EventRepository;
@@ -18,6 +20,7 @@ import ru.practicum.ewm.repository.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Log4j2
 @Service
@@ -36,13 +39,59 @@ public class RequestServiceImpl implements RequestService {
 //        Получение сущностей для создания связей через JPA
         Event event = findEvent(dto.getEventId());
         User requester = findUser(dto.getUserId());
+
+        //Проверка, что событие опубликовано
+        if (event.getState() != EventState.PUBLISHED) {
+            log.error("Не удается создать запрос на неопубликованное событие с id={}", event.getId());
+            throw new ConflictException("Событие еще не опубликовано");
+        }
+        //Проверка, что инициатор не пытается участвовать в своем событии
+        if (event.getInitiator().getId().equals(requester.getId())) {
+            log.error("Инициатор не может участвовать в собственном мероприятии. eventId={}, userId={}", event.getId(), requester.getId());
+            throw new ConflictException("Инициатор не может участвовать в собственном мероприятии");
+        }
+
+        //Проверка, что пользователь уже не создавал запрос
+        Optional<ParticipationRequest> existingRequest =
+                requestRepository.findByRequester_IdAndEvent_Id(requester.getId(), event.getId());
+
+        if (existingRequest.isPresent()) {
+            log.error("Запрос пользователя {} на событие {} уже существует",
+                    requester.getId(), event.getId());
+            throw new ConflictException(String.format("Запрос пользователя c id=%d на событие c id=%d уже существует", requester.getId(), event.getId()));
+        }
+
+        // Проверка лимита участников
+        Long approvedRequestsCount = requestRepository.countByEvent_IdAndStatus(
+                event.getId(), RequestStatus.CONFIRMED.toString());
+
+        if (event.getParticipantLimit() > 0 && approvedRequestsCount >= event.getParticipantLimit()) {
+            log.error("Достигнут лимит участников для event {}. Limit: {}, CONFIRMED: {}",
+                    event.getId(), event.getParticipantLimit(), approvedRequestsCount);
+            throw new ConflictException(String.format("Достигнут лимит участников. Limit=%d, Approved=%d", event.getParticipantLimit(), approvedRequestsCount));
+        }
+        //Определение статуса запроса
+        RequestStatus initialStatus;
+
+        if (event.getParticipantLimit() == 0) {
+            initialStatus = RequestStatus.CONFIRMED;
+        } else if (!event.getRequestModeration()) {
+            initialStatus = RequestStatus.CONFIRMED;
+        } else {
+            initialStatus = RequestStatus.PENDING;
+        }
+
+
 //        Получение готовой сущности
         ParticipationRequest req = RequestMapper.toEntity(
                 nowDate,
                 event,
                 requester,
-                RequestStatus.PENDING
+                initialStatus
         );
+
+        log.info("оздание запроса для userId={} с eventId={} со statusId={}",
+                requester.getId(), event.getId(), initialStatus);
 //        Сохранение
         return RequestMapper.toParticipationRequestDto(
                 requestRepository.save(req)
