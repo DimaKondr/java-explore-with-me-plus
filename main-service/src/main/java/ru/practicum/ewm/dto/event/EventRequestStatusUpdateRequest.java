@@ -2,6 +2,7 @@ package ru.practicum.ewm.dto.event;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
+import ru.practicum.ewm.model.request.RequestStatus;
 
 import java.util.List;
 
@@ -17,5 +18,5 @@ public class EventRequestStatusUpdateRequest {
     List<Long> requestIds;
 
     @NotNull(message = "Статус запроса не должен быть null")
-    String status;
+    RequestStatus status;
 }

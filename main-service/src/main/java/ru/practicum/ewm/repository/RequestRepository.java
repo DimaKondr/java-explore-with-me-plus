@@ -27,11 +27,11 @@ public interface RequestRepository extends JpaRepository<ParticipationRequest, L
             """)
     int changeState(long requestId, RequestStatus state);
 
-    Long countByEvent_IdAndStatus(Long eventId, String status);
+    Long countByEvent_IdAndStatus(Long eventId, RequestStatus status);
 
     List<ParticipationRequest> findAllByEvent_Id(Long eventId);
 
-    List<ParticipationRequest> findAllByIdInAndStatusOrderByCreatedAsc(List<Long> requestsIds, String status);
+    List<ParticipationRequest> findAllByIdInAndStatusOrderByCreatedAsc(List<Long> requestsIds, RequestStatus status);
 
     Optional<ParticipationRequest> findByRequester_IdAndEvent_Id(Long userId, Long eventId);
 }

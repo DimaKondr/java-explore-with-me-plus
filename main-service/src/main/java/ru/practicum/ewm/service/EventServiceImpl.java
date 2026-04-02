@@ -14,6 +14,7 @@ import ru.practicum.ewm.dto.event.*;
 import ru.practicum.ewm.dto.request.ParticipationRequestDto;
 import ru.practicum.ewm.exception.CreationRulesException;
 import ru.practicum.ewm.exception.NotFoundException;
+import ru.practicum.ewm.exception.ValidationException;
 import ru.practicum.ewm.mapper.EventMapper;
 import ru.practicum.ewm.mapper.LocationMapper;
 import ru.practicum.ewm.mapper.RequestMapper;
@@ -55,7 +56,7 @@ public class EventServiceImpl implements EventService {
         if (eventDate.isBefore(LocalDateTime.now()) && eventDate.isBefore(LocalDateTime.now().plusHours(2))) {
             log.error("Добавление события. Время начала события не может быть в прошлом " +
                     "и должно начинаться не ранее, чем через два часа от текущего момента.");
-            throw new CreationRulesException("Время начала события не может быть в прошлом " +
+            throw new ValidationException("Время начала события не может быть в прошлом " +
                     "и должно начинаться не ранее, чем через два часа от текущего момента.");
         }
 
@@ -77,7 +78,7 @@ public class EventServiceImpl implements EventService {
                 LocalDateTime.now(),
                 initiator,
                 location,
-                null,
+                LocalDateTime.now(),
                 EventState.PENDING
         );
 
@@ -99,9 +100,16 @@ public class EventServiceImpl implements EventService {
         List<EventShortDto> result = new ArrayList<>();
         for (int i = 0; i < events.size(); i++) {
             Long confirmedRequests = requestRepository.countByEvent_IdAndStatus(events.get(i).getId(),
-                    RequestStatus.CONFIRMED.toString());
-            EventShortDto eventShortDto = EventMapper.eventToShortDto(events.get(i),
-                    confirmedRequests, stats.get(i).getHits());
+                    RequestStatus.CONFIRMED);
+            Long hits;
+            if (stats.isEmpty())
+                hits = 0L;
+            else
+                hits = stats.get(i).getHits();
+            EventShortDto eventShortDto = EventMapper.eventToShortDto(
+                    events.get(i),
+                    confirmedRequests,
+                    hits);
             result.add(eventShortDto);
         }
         return result;
@@ -116,7 +124,7 @@ public class EventServiceImpl implements EventService {
         return EventMapper.eventToFullDto(
                 event,
                 requestRepository.countByEvent_IdAndStatus(eventId,
-                        RequestStatus.CONFIRMED.toString()),
+                        RequestStatus.CONFIRMED),
                 stats.getFirst().getHits()
         );
     }
@@ -132,10 +140,20 @@ public class EventServiceImpl implements EventService {
         List<StatResponseDto> stats = getViewsStats(events);
         List<EventShortDto> result = new ArrayList<>();
         for (int i = 0; i < events.size(); i++) {
-            Long confirmedRequests = requestRepository.countByEvent_IdAndStatus(events.get(i).getId(),
-                    RequestStatus.CONFIRMED.toString());
-            EventShortDto eventShortDto = EventMapper.eventToShortDto(events.get(i),
-                    confirmedRequests, stats.get(i).getHits());
+            Long confirmedRequests = requestRepository.countByEvent_IdAndStatus(
+                    events.get(i).getId(),
+                    RequestStatus.CONFIRMED
+            );
+            Long hits;
+            if (stats.isEmpty())
+                hits = 0L;
+            else
+                hits = stats.get(i).getHits();
+            EventShortDto eventShortDto = EventMapper.eventToShortDto(
+                    events.get(i),
+                    confirmedRequests,
+                    hits
+            );
             result.add(eventShortDto);
         }
         return result;
@@ -162,10 +180,10 @@ public class EventServiceImpl implements EventService {
         if (dto.getEventDate() != null) {
             LocalDateTime eventDate = LocalDateTime.parse(dto.getEventDate(), Constants.FORMATTER);
 
-            if (eventDate.isBefore(LocalDateTime.now()) || eventDate.isBefore(LocalDateTime.now().plusHours(2))) {
+            if (eventDate.isBefore(LocalDateTime.now().plusHours(2))) {
                 log.error("Обновление данных события. Время начала события не может быть в прошлом " +
                         "и должно начинаться не ранее, чем через два часа от текущего момента.");
-                throw new CreationRulesException("Время начала события не может быть в прошлом " +
+                throw new ValidationException("Время начала события не может быть в прошлом " +
                         "и должно начинаться не ранее, чем через два часа от текущего момента.");
             }
 
@@ -219,12 +237,17 @@ public class EventServiceImpl implements EventService {
 
         Event patchedEvent = eventRepository.save(oldEvent);
         List<StatResponseDto> stats = getViewsStats(List.of(patchedEvent));
+        Long hits;
+        if(stats.isEmpty())
+            hits = 0L;
+        else
+            hits = stats.getFirst().getHits();
 
         return EventMapper.eventToFullDto(
                 patchedEvent,
                 requestRepository.countByEvent_IdAndStatus(eventId,
-                        RequestStatus.CONFIRMED.toString()),
-                stats.getFirst().getHits()
+                        RequestStatus.CONFIRMED),
+                hits
         );
 
     }
@@ -262,7 +285,7 @@ public class EventServiceImpl implements EventService {
         Event event = eventRepository.findById(eventId).orElseThrow(() -> new NotFoundException(
                 "Обновление данных события. Событие с ID: " + eventId + " не найдено."));
         Long participantLimit = event.getParticipantLimit().longValue();
-        Long approvedRequestsCount = requestRepository.countByEvent_IdAndStatus(eventId, RequestStatus.CONFIRMED.toString());
+        Long approvedRequestsCount = requestRepository.countByEvent_IdAndStatus(eventId, RequestStatus.CONFIRMED);
 
         if (participantLimit.equals(approvedRequestsCount)) {
             log.error("Обновление статусов заявок на участие в событии. " +
@@ -271,7 +294,7 @@ public class EventServiceImpl implements EventService {
         }
 
         List<ParticipationRequest> requests = requestRepository.findAllByIdInAndStatusOrderByCreatedAsc(
-                dto.getRequestIds(), RequestStatus.PENDING.toString());
+                dto.getRequestIds(), RequestStatus.PENDING);
 
         if (requests.isEmpty()) {
             log.error("Обновление статусов заявок на участие в событии. " +
@@ -327,10 +350,18 @@ public class EventServiceImpl implements EventService {
 
         List<EventFullDto> result = new ArrayList<>();
         for (int i = 0; i < events.size(); i++) {
-            Long confirmedRequests = requestRepository.countByEvent_IdAndStatus(events.get(i).getId(),
-                    RequestStatus.CONFIRMED.toString());
-            EventFullDto eventFullDto = EventMapper.eventToFullDto(events.get(i),
-                    confirmedRequests, stats.get(i).getHits());
+            Long confirmedRequests = requestRepository.countByEvent_IdAndStatus(
+                    events.get(i).getId(),
+                    RequestStatus.CONFIRMED);
+            Long hits;
+            if (stats.isEmpty())
+                hits = 0L;
+            else
+                hits = stats.get(i).getHits();
+            EventFullDto eventFullDto = EventMapper.eventToFullDto(
+                    events.get(i),
+                    confirmedRequests,
+                    hits);
             result.add(eventFullDto);
         }
         return result;
@@ -362,10 +393,10 @@ public class EventServiceImpl implements EventService {
         if (dto.getEventDate() != null) {
             LocalDateTime eventDate = LocalDateTime.parse(dto.getEventDate(), Constants.FORMATTER);
 
-            if (eventDate.isBefore(LocalDateTime.now()) || eventDate.isBefore(LocalDateTime.now().plusHours(1))) {
+            if (eventDate.isBefore(LocalDateTime.now().plusHours(1))) {
                 log.error("Уровень Admin. Обновление данных события. Время начала события не может быть в прошлом " +
                         "и должно начинаться не ранее, чем через один час от даты публикации.");
-                throw new CreationRulesException("Обновление данных события администратором. " +
+                throw new ValidationException("Обновление данных события администратором. " +
                         "Время начала события не может быть в прошлом " +
                         "и должно начинаться не ранее, чем через один час от даты публикации.");
             }
@@ -412,12 +443,17 @@ public class EventServiceImpl implements EventService {
 
         Event patchedEvent = eventRepository.save(oldEvent);
         List<StatResponseDto> stats = getViewsStats(List.of(patchedEvent));
+        Long hits;
+        if(stats.isEmpty())
+            hits = 0L;
+        else
+            hits = stats.getFirst().getHits();
 
         return EventMapper.eventToFullDto(
                 patchedEvent,
                 requestRepository.countByEvent_IdAndStatus(eventId,
-                        RequestStatus.CONFIRMED.toString()),
-                stats.getFirst().getHits()
+                        RequestStatus.CONFIRMED),
+                hits
         );
     }
 

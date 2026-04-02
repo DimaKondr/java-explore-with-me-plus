@@ -18,6 +18,7 @@ import ru.practicum.ewm.model.event.Event;
 import ru.practicum.ewm.repository.CompilationRepository;
 import ru.practicum.ewm.repository.EventRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -33,7 +34,12 @@ public class CompilationServiceImpl implements CompilationService {
     @Transactional
     @Override
     public CompilationDto createCompilation(CreateCompilationDto dto) {
-        List<Event> events = eventRep.findAllById(dto.getEvents());
+        List<Event> events;
+        if (dto.getEvents() == null) {
+            events = new ArrayList<>();
+            dto.setEvents(new ArrayList<>());
+        } else
+            events = eventRep.findAllById(dto.getEvents());
         return CompilationMapper.toCompilationDto(
                 compRep.save(CompilationMapper.toEntity(dto, events)),
                 eventService.getShortEventsInfoByIds(dto.getEvents())
@@ -46,12 +52,14 @@ public class CompilationServiceImpl implements CompilationService {
         Compilation old = compRep.findById(dto.getId()).orElseThrow(
                 () -> new NotFoundException("Compilation not found")
         );
-        List<Event> events = eventRep.findAllById(dto.getEvents());
-        if (events.size() != dto.getEvents().size())
-            throw new NotFoundException("Часть переданных событий не существует");
-        Compilation comp = update(old, dto, events);
+        if (dto.getEvents() != null) {
+            List<Event> events = eventRep.findAllById(dto.getEvents());
+            if (events.size() != dto.getEvents().size())
+                throw new NotFoundException("Часть переданных событий не существует");
+            old = update(old, dto, events);
+        }
         return CompilationMapper.toCompilationDto(
-                compRep.save(comp),
+                compRep.save(old),
                 eventService.getShortEventsInfoByIds(dto.getEvents())
         );
     }
@@ -67,13 +75,13 @@ public class CompilationServiceImpl implements CompilationService {
     @Override
     public List<CompilationDto> getCompilations(GetManyCompilationDto dto) {
         Pageable pageable = PageRequest.of(
-                1,
-                dto.getFrom().intValue(),
+                0,
+                dto.getSize().intValue(),
                 Sort.by(Sort.Direction.ASC, "id")
         );
 
 //      Получение подборок
-        List<Compilation> compilations = compRep.findAllByPinnedFilter(dto.getPinned(), dto.getSize(), pageable);
+        List<Compilation> compilations = compRep.findAllByPinnedFilter(dto.getPinned(), dto.getFrom(), pageable);
 
 //      Список всех уникальных EventShortDto во всех подборках
         Map<Long, EventShortDto> eventsMap =

@@ -16,8 +16,8 @@ public interface CompilationRepository extends JpaRepository<Compilation, Long> 
             LEFT JOIN c.events e
             WHERE (:pinned IS NULL OR c.pinned = :pinned)
             GROUP BY c.id
-            HAVING (:size IS NULL OR COUNT(e) = :size)
+            HAVING (:from IS NULL OR COUNT(e) = :from)
             """)
-    List<Compilation> findAllByPinnedFilter(Boolean pinned, Long size, Pageable pageable);
+    List<Compilation> findAllByPinnedFilter(Boolean pinned, Long from, Pageable pageable);
 
 }

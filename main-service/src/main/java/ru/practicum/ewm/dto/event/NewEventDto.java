@@ -33,14 +33,11 @@ public class NewEventDto {
     @Valid
     LocationDto location;
 
-    @NotNull(message = "Условие платно ли участие в событии не должно быть null")
     Boolean paid;
 
-    @NotNull(message = "Количество участников в событии не должно быть null")
     @PositiveOrZero(message = "Лимит участников не может быть отрицательным")
     Integer participantLimit;
 
-    @NotNull(message = "Условие необходимости пре-модерации не должно быть null")
     Boolean requestModeration;
 
     @NotBlank(message = "Заголовок события не может быть null или пустым")

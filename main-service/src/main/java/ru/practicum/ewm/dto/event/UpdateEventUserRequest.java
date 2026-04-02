@@ -1,6 +1,7 @@
 package ru.practicum.ewm.dto.event;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import ru.practicum.ewm.annotation.NotBlankOrNull;
@@ -28,6 +29,7 @@ public class UpdateEventUserRequest {
     @Valid
     LocationDto location;
     Boolean paid;
+    @PositiveOrZero
     Integer participantLimit;
     Boolean requestModeration;
 

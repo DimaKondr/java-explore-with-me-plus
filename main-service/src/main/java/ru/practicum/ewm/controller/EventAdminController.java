@@ -25,11 +25,11 @@ public class EventAdminController {
 
     @GetMapping
     public List<EventFullDto> getEventsByAdminParam(
-            @RequestParam List<Long> users,
-            @RequestParam List<String> states,
-            @RequestParam List<Long> categories,
-            @RequestParam String rangeStart,
-            @RequestParam String rangeEnd,
+            @RequestParam(required = false) List<Long> users,
+            @RequestParam(required = false) List<String> states,
+            @RequestParam(required = false) List<Long> categories,
+            @RequestParam(required = false) String rangeStart,
+            @RequestParam(required = false) String rangeEnd,
             @RequestParam(defaultValue = "0")
                 @PositiveOrZero Integer from,
             @RequestParam(defaultValue = "10")

@@ -10,6 +10,7 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.HandlerMethodValidationException;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -50,7 +51,7 @@ public class ErrorHandler {
         );
     }
 
-    @ExceptionHandler(ValidationException.class)
+    @ExceptionHandler({ValidationException.class, HandlerMethodValidationException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ApiError handleValidation(ValidationException ex) {
         log.error("Нарушение валидации объекта: {}", ex.getMessage());

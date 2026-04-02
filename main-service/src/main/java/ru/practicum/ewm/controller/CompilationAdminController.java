@@ -11,6 +11,10 @@ import ru.practicum.ewm.dto.compilation.CreateCompilationDto;
 import ru.practicum.ewm.mapper.CompilationMapper;
 import ru.practicum.ewm.service.CompilationService;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 @Slf4j
 @RestController
 @RequiredArgsConstructor
@@ -23,6 +27,8 @@ public class CompilationAdminController {
     @ResponseStatus(HttpStatus.CREATED)
     public CompilationDto createCompilation(
             @Valid @RequestBody CreateCompilationDto dto) {
+        if(dto.getPinned() == null)
+            dto.setPinned(false);
         return service.createCompilation(dto);
     }
 
@@ -31,6 +37,8 @@ public class CompilationAdminController {
     public CompilationDto updateCompilation(
             @PositiveOrZero @PathVariable Long compId,
             @Valid @RequestBody CreateCompilationDto dto) {
+        if(dto.getPinned() == null)
+            dto.setPinned(false);
         return service.updateCompilation(CompilationMapper.toUpdateCompilationDto(compId, dto));
     }
 

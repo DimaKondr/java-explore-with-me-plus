@@ -32,6 +32,12 @@ public class EventPrivateController {
                 @NotNull(message = "Добавляемое событие не может быть null")
                 @Valid NewEventDto dto
     ) {
+        if (dto.getPaid() == null)
+            dto.setPaid(false);
+        if (dto.getParticipantLimit() == null)
+            dto.setParticipantLimit(0);
+        if (dto.getRequestModeration() == null)
+            dto.setRequestModeration(true);
         log.info("Создание нового события {} пользователем с ID: {}", dto, userId);
         return eventService.addEvent(userId, dto);
     }

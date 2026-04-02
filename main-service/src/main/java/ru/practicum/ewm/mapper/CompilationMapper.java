@@ -23,15 +23,6 @@ public class CompilationMapper {
                 .build();
     }
 
-    public Compilation toEntity(UpdateCompilationDto dto, List<Event> events) {
-        return Compilation.builder()
-                .id(dto.getId())
-                .events(events)
-                .pinned(dto.getPinned())
-                .title(dto.getTitle())
-                .build();
-    }
-
 //    Преобразование в dto
 
     public CompilationDto toCompilationDto(Compilation compilation, List<EventShortDto> events) {

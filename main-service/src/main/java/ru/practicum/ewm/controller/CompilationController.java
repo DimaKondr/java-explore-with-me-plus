@@ -22,9 +22,9 @@ public class CompilationController {
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public List<CompilationDto> getCompilations(
-            @RequestParam Boolean pinned,
-            @PositiveOrZero @RequestParam Long from,
-            @PositiveOrZero @RequestParam Long size
+            @RequestParam(defaultValue = "true") Boolean pinned,
+            @PositiveOrZero @RequestParam(defaultValue = "0") Long from,
+            @PositiveOrZero @RequestParam(defaultValue = "10") Long size
     ) {
         return service.getCompilations(GetManyCompilationDto.builder()
                 .pinned(pinned)
