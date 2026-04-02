@@ -104,7 +104,7 @@ public class EventServiceImpl implements EventService {
             Long confirmedRequests = requestRepository.countByEvent_IdAndStatus(events.get(i).getId(),
                     RequestStatus.CONFIRMED.toString());
             EventShortDto eventShortDto = EventMapper.eventToShortDto(events.get(i),
-                    stats.get(i).getHits(), confirmedRequests);
+                    confirmedRequests, stats.get(i).getHits());
             result.add(eventShortDto);
         }
         return result;
@@ -138,7 +138,7 @@ public class EventServiceImpl implements EventService {
             Long confirmedRequests = requestRepository.countByEvent_IdAndStatus(events.get(i).getId(),
                     RequestStatus.CONFIRMED.toString());
             EventShortDto eventShortDto = EventMapper.eventToShortDto(events.get(i),
-                    stats.get(i).getHits(), confirmedRequests);
+                    confirmedRequests, stats.get(i).getHits());
             result.add(eventShortDto);
         }
         return result;
@@ -165,7 +165,7 @@ public class EventServiceImpl implements EventService {
         if (dto.getEventDate() != null) {
             LocalDateTime eventDate = LocalDateTime.parse(dto.getEventDate(), Constants.FORMATTER);
 
-            if (eventDate.isBefore(LocalDateTime.now()) && eventDate.isBefore(LocalDateTime.now().plusHours(2))) {
+            if (eventDate.isBefore(LocalDateTime.now()) || eventDate.isBefore(LocalDateTime.now().plusHours(2))) {
                 log.error("Обновление данных события. Время начала события не может быть в прошлом " +
                         "и должно начинаться не ранее, чем через два часа от текущего момента.");
                 throw new CreationRulesException("Время начала события не может быть в прошлом " +
@@ -314,6 +314,114 @@ public class EventServiceImpl implements EventService {
                 .toList();
 
         return new EventRequestStatusUpdateResult(resultApprovedRequestsDto, resultRejectedRequestsDto);
+    }
+
+    @Override
+    public List<EventFullDto> getEventsByAdminParam(AdminEventParam param) {
+        Pageable pageable = PageRequest.of(param.getFrom() / param.getSize(), param.getSize());
+        List<Event> events = eventRepository.findByAdminParam(param, pageable);
+
+        if (events == null || events.isEmpty()) {
+            log.info("Уровень Admin. Получение списка событий. По заданным параметрам " +
+                    "(param: {}, from: {}, size {}) события не найдены.", param, param.getFrom(), param.getSize());
+            return new ArrayList<>();
+        }
+        List<StatResponseDto> stats = getViewsStats(events);
+
+        List<EventFullDto> result = new ArrayList<>();
+        for (int i = 0; i < events.size(); i++) {
+            Long confirmedRequests = requestRepository.countByEvent_IdAndStatus(events.get(i).getId(),
+                    RequestStatus.APPROVED.toString());
+            EventFullDto eventFullDto = EventMapper.eventToFullDto(events.get(i),
+                    confirmedRequests, stats.get(i).getHits());
+            result.add(eventFullDto);
+        }
+        return result;
+    }
+
+    @Transactional
+    @Override
+    public EventFullDto patchEventByIdByAdmin(Long eventId, UpdateEventAdminRequest dto) {
+        Event oldEvent = eventRepository.findById(eventId).orElseThrow(() -> new NotFoundException(
+                "Уровень Admin. Обновление данных события. Событие с ID: " + eventId + " не найдено."));
+
+        if (dto.getStateAction() != null) {
+            if (dto.getStateAction().equals(EventStateAction.PUBLISH_EVENT.toString())
+                    && oldEvent.getState().equals(EventState.PENDING)) {
+                oldEvent.setState(EventState.PUBLISHED);
+            } else if (dto.getStateAction().equals(EventStateAction.REJECT_EVENT.toString())
+                    && !oldEvent.getState().equals(EventState.PUBLISHED)) {
+                oldEvent.setState(EventState.CANCELED);
+            } else {
+                log.error("Уровень Admin. Обновление данных события. " +
+                        "Опубликовать можно только событие, ожидающее публикации. " +
+                        "Отклонить можно только событие, которое не опубликовано.");
+                throw new CreationRulesException("Обновление данных события администратором. " +
+                        "Опубликовать можно только событие, ожидающее публикации. " +
+                        "Отклонить можно только событие, которое не опубликовано.");
+            }
+        }
+
+        if (dto.getEventDate() != null) {
+            LocalDateTime eventDate = LocalDateTime.parse(dto.getEventDate(), Constants.FORMATTER);
+
+            if (eventDate.isBefore(LocalDateTime.now()) || eventDate.isBefore(LocalDateTime.now().plusHours(1))) {
+                log.error("Уровень Admin. Обновление данных события. Время начала события не может быть в прошлом " +
+                        "и должно начинаться не ранее, чем через один час от даты публикации.");
+                throw new CreationRulesException("Обновление данных события администратором. " +
+                        "Время начала события не может быть в прошлом " +
+                        "и должно начинаться не ранее, чем через один час от даты публикации.");
+            }
+
+            oldEvent.setEventDate(eventDate);
+        }
+
+        if (dto.getCategoryId() != null) {
+            Category category = categoryRepository.findById(dto.getCategoryId()).orElseThrow(() -> new NotFoundException(
+                    "Обновление данных события администратором. " +
+                            "Категория с ID: " + dto.getCategoryId() + " не найдена."));
+
+            oldEvent.setCategory(category);
+        }
+
+        if (dto.getLocation() != null) {
+            oldEvent.getLocation().setLat(dto.getLocation().getLat());
+            oldEvent.getLocation().setLon(dto.getLocation().getLon());
+        }
+
+        if (dto.getAnnotation() != null) {
+            oldEvent.setAnnotation(dto.getAnnotation());
+        }
+
+        if (dto.getDescription() != null) {
+            oldEvent.setDescription(dto.getDescription());
+        }
+
+        if (dto.getPaid() != null) {
+            oldEvent.setPaid(dto.getPaid());
+        }
+
+        if (dto.getParticipantLimit() != null) {
+            oldEvent.setParticipantLimit(dto.getParticipantLimit());
+        }
+
+        if (dto.getRequestModeration() != null) {
+            oldEvent.setRequestModeration(dto.getRequestModeration());
+        }
+
+        if (dto.getTitle() != null) {
+            oldEvent.setTitle(dto.getTitle());
+        }
+
+        Event patchedEvent = eventRepository.save(oldEvent);
+        List<StatResponseDto> stats = getViewsStats(List.of(patchedEvent));
+
+        return EventMapper.eventToFullDto(
+                patchedEvent,
+                requestRepository.countByEvent_IdAndStatus(eventId,
+                        RequestStatus.APPROVED.toString()),
+                stats.getFirst().getHits()
+        );
     }
 
     private List<StatResponseDto> getViewsStats(List<Event> events) {
