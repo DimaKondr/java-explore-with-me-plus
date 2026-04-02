@@ -36,6 +36,7 @@ public class NewEventDto {
     @NotNull(message = "Условие платно ли участие в событии не должно быть null")
     Boolean paid;
 
+    @NotNull(message = "Количество участников в событии не должно быть null")
     @PositiveOrZero(message = "Лимит участников не может быть отрицательным")
     Integer participantLimit;
 

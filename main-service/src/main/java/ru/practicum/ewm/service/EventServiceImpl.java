@@ -19,10 +19,7 @@ import ru.practicum.ewm.mapper.LocationMapper;
 import ru.practicum.ewm.mapper.RequestMapper;
 import ru.practicum.ewm.model.Category;
 import ru.practicum.ewm.model.User;
-import ru.practicum.ewm.model.event.Event;
-import ru.practicum.ewm.model.event.EventState;
-import ru.practicum.ewm.model.event.UserStateAction;
-import ru.practicum.ewm.model.event.Location;
+import ru.practicum.ewm.model.event.*;
 import ru.practicum.ewm.model.request.ParticipationRequest;
 import ru.practicum.ewm.model.request.RequestStatus;
 import ru.practicum.ewm.repository.*;
@@ -331,7 +328,7 @@ public class EventServiceImpl implements EventService {
         List<EventFullDto> result = new ArrayList<>();
         for (int i = 0; i < events.size(); i++) {
             Long confirmedRequests = requestRepository.countByEvent_IdAndStatus(events.get(i).getId(),
-                    RequestStatus.APPROVED.toString());
+                    RequestStatus.CONFIRMED.toString());
             EventFullDto eventFullDto = EventMapper.eventToFullDto(events.get(i),
                     confirmedRequests, stats.get(i).getHits());
             result.add(eventFullDto);
@@ -346,10 +343,10 @@ public class EventServiceImpl implements EventService {
                 "Уровень Admin. Обновление данных события. Событие с ID: " + eventId + " не найдено."));
 
         if (dto.getStateAction() != null) {
-            if (dto.getStateAction().equals(EventStateAction.PUBLISH_EVENT.toString())
+            if (dto.getStateAction().equals(AdminStateAction.PUBLISH_EVENT.toString())
                     && oldEvent.getState().equals(EventState.PENDING)) {
                 oldEvent.setState(EventState.PUBLISHED);
-            } else if (dto.getStateAction().equals(EventStateAction.REJECT_EVENT.toString())
+            } else if (dto.getStateAction().equals(AdminStateAction.REJECT_EVENT.toString())
                     && !oldEvent.getState().equals(EventState.PUBLISHED)) {
                 oldEvent.setState(EventState.CANCELED);
             } else {
@@ -419,7 +416,7 @@ public class EventServiceImpl implements EventService {
         return EventMapper.eventToFullDto(
                 patchedEvent,
                 requestRepository.countByEvent_IdAndStatus(eventId,
-                        RequestStatus.APPROVED.toString()),
+                        RequestStatus.CONFIRMED.toString()),
                 stats.getFirst().getHits()
         );
     }
