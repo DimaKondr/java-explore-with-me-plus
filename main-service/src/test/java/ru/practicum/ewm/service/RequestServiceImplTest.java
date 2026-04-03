@@ -10,10 +10,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import ru.practicum.ewm.dto.request.CreateUpdateRequestDto;
 import ru.practicum.ewm.dto.request.ParticipationRequestDto;
 import ru.practicum.ewm.exception.NotFoundException;
-import ru.practicum.ewm.model.event.EventState;
-import ru.practicum.ewm.model.request.ParticipationRequest;
 import ru.practicum.ewm.model.User;
 import ru.practicum.ewm.model.event.Event;
+import ru.practicum.ewm.model.event.EventState;
+import ru.practicum.ewm.model.request.ParticipationRequest;
 import ru.practicum.ewm.model.request.RequestStatus;
 import ru.practicum.ewm.repository.EventRepository;
 import ru.practicum.ewm.repository.RequestRepository;
@@ -100,8 +100,8 @@ class RequestServiceImplTest {
 
         assertNotNull(result);
         assertEquals(3L, result.getId());
-        assertEquals(2L, result.getEventId());
-        assertEquals(1L, result.getRequesterId());
+        assertEquals(2L, result.getEvent());
+        assertEquals(1L, result.getRequester());
         assertEquals("PENDING", result.getStatus());
 
         verify(userRepository).findById(1L);
@@ -119,7 +119,7 @@ class RequestServiceImplTest {
         assertNotNull(result);
         assertEquals(1, result.size());
         assertEquals(3L, result.get(0).getId());
-        assertEquals(2L, result.get(0).getEventId());
+        assertEquals(2L, result.get(0).getEvent());
 
         verify(requestRepository).findAllByUserId(1L);
     }
@@ -154,5 +154,5 @@ class RequestServiceImplTest {
         verify(userRepository).findById(1L);
         verify(eventRepository, never()).findById(any());
     }
-    
+
 }
