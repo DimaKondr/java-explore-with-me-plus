@@ -6,15 +6,17 @@ import java.util.List;
 
 @Value
 @Builder
-@Getter
+/*@Getter
 @Setter
-@AllArgsConstructor
-public class AdminEventParam {
-    List<Long> users;
-    List<String> states;
+@AllArgsConstructor*/
+public class PublicEventRequestParam {
+    String text;
     List<Long> categories;
+    Boolean paid;
     String rangeStart;
     String rangeEnd;
+    Boolean onlyAvailable;
+    String sort;
     Integer from;
     Integer size;
 }

@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.ewm.dto.event.AdminEventParam;
+import ru.practicum.ewm.dto.event.AdminEventRequestParam;
 import ru.practicum.ewm.dto.event.EventFullDto;
 import ru.practicum.ewm.dto.event.UpdateEventAdminRequest;
 import ru.practicum.ewm.service.EventService;
@@ -24,7 +24,7 @@ public class EventAdminController {
     private final EventService eventService;
 
     @GetMapping
-    public List<EventFullDto> getEventsByAdminParam(
+    public List<EventFullDto> getEventsByAdminRequest(
             @RequestParam List<Long> users,
             @RequestParam List<String> states,
             @RequestParam List<Long> categories,
@@ -37,7 +37,7 @@ public class EventAdminController {
     ) {
         log.info("Уровень Admin. Получение списка из {} событий по необходимым параметрам. " +
                 "Пропускаем {} элементов. ", size, from);
-        AdminEventParam param = AdminEventParam.builder()
+        AdminEventRequestParam param = AdminEventRequestParam.builder()
                 .users(users)
                 .states(states)
                 .categories(categories)
@@ -46,7 +46,7 @@ public class EventAdminController {
                 .from(from)
                 .size(size)
                 .build();
-        return eventService.getEventsByAdminParam(param);
+        return eventService.getEventsByAdminRequest(param);
     }
 
     @PatchMapping("/{eventId}")

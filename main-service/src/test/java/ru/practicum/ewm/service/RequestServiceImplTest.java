@@ -100,8 +100,8 @@ class RequestServiceImplTest {
 
         assertNotNull(result);
         assertEquals(3L, result.getId());
-        assertEquals(2L, result.getEventId());
-        assertEquals(1L, result.getRequesterId());
+        assertEquals(2L, result.getEvent());
+        assertEquals(1L, result.getRequester());
         assertEquals("PENDING", result.getStatus());
 
         verify(userRepository).findById(1L);
@@ -119,7 +119,7 @@ class RequestServiceImplTest {
         assertNotNull(result);
         assertEquals(1, result.size());
         assertEquals(3L, result.get(0).getId());
-        assertEquals(2L, result.get(0).getEventId());
+        assertEquals(2L, result.get(0).getEvent());
 
         verify(requestRepository).findAllByUserId(1L);
     }

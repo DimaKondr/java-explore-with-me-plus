@@ -14,6 +14,7 @@ import ru.practicum.ewm.dto.event.*;
 import ru.practicum.ewm.dto.request.ParticipationRequestDto;
 import ru.practicum.ewm.exception.CreationRulesException;
 import ru.practicum.ewm.exception.NotFoundException;
+import ru.practicum.ewm.exception.ValidationException;
 import ru.practicum.ewm.mapper.EventMapper;
 import ru.practicum.ewm.mapper.LocationMapper;
 import ru.practicum.ewm.mapper.RequestMapper;
@@ -25,8 +26,9 @@ import ru.practicum.ewm.model.request.RequestStatus;
 import ru.practicum.ewm.repository.*;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -55,7 +57,7 @@ public class EventServiceImpl implements EventService {
         if (eventDate.isBefore(LocalDateTime.now()) && eventDate.isBefore(LocalDateTime.now().plusHours(2))) {
             log.error("Добавление события. Время начала события не может быть в прошлом " +
                     "и должно начинаться не ранее, чем через два часа от текущего момента.");
-            throw new CreationRulesException("Время начала события не может быть в прошлом " +
+            throw new ValidationException("Время начала события не может быть в прошлом " +
                     "и должно начинаться не ранее, чем через два часа от текущего момента.");
         }
 
@@ -77,7 +79,7 @@ public class EventServiceImpl implements EventService {
                 LocalDateTime.now(),
                 initiator,
                 location,
-                null,
+                LocalDateTime.now(),
                 EventState.PENDING
         );
 
@@ -94,31 +96,30 @@ public class EventServiceImpl implements EventService {
                     "По заданным параметрам (userId: {}, from: {}, size {}) события не найдены.", userId, from, size);
             return new ArrayList<>();
         }
-        List<StatResponseDto> stats = getViewsStats(events);
-
+        Map<Long, Long> confirmedRequestsCount = getConfirmedRequestsCount(events);
+        Map<Long, Long> viewsStats = getViewsCount(events);
         List<EventShortDto> result = new ArrayList<>();
-        for (int i = 0; i < events.size(); i++) {
-            Long confirmedRequests = requestRepository.countByEvent_IdAndStatus(events.get(i).getId(),
-                    RequestStatus.CONFIRMED.toString());
-            EventShortDto eventShortDto = EventMapper.eventToShortDto(events.get(i),
-                    confirmedRequests, stats.get(i).getHits());
+        for (Event event : events) {
+            Long views = viewsStats.getOrDefault(event.getId(), 0L);
+            Long confirmedRequests = confirmedRequestsCount.getOrDefault(event.getId(), 0L);
+            EventShortDto eventShortDto = EventMapper.eventToShortDto(event,
+                    confirmedRequests, views);
             result.add(eventShortDto);
         }
         return result;
     }
 
+    @SuppressWarnings("checkstyle:Regexp")
     @Override
     public EventFullDto getEventById(Long userId, Long eventId) {
         Event event = eventRepository.findById(eventId).orElseThrow(() -> new NotFoundException(
                 "Получения данных о событии. Событие с ID: " + eventId + " не найдено."));
-        List<StatResponseDto> stats = getViewsStats(List.of(event));
 
-        return EventMapper.eventToFullDto(
-                event,
-                requestRepository.countByEvent_IdAndStatus(eventId,
-                        RequestStatus.CONFIRMED.toString()),
-                stats.getFirst().getHits()
-        );
+        Map<Long, Long> confirmedRequestsCount = getConfirmedRequestsCount(List.of(event));
+        Map<Long, Long> viewsStats = getViewsCount(List.of(event));
+        Long views = viewsStats.getOrDefault(event.getId(), 0L);
+        Long confirmedRequests = confirmedRequestsCount.getOrDefault(event.getId(), 0L);
+        return EventMapper.eventToFullDto(event, confirmedRequests, views);
     }
 
     @Override
@@ -129,13 +130,15 @@ public class EventServiceImpl implements EventService {
             log.info("Получение событий по списку ID. По указанным в списке ID событий события не найдены.");
             return new ArrayList<>();
         }
-        List<StatResponseDto> stats = getViewsStats(events);
+
+        Map<Long, Long> confirmedRequestsCount = getConfirmedRequestsCount(events);
+        Map<Long, Long> viewsStats = getViewsCount(events);
         List<EventShortDto> result = new ArrayList<>();
-        for (int i = 0; i < events.size(); i++) {
-            Long confirmedRequests = requestRepository.countByEvent_IdAndStatus(events.get(i).getId(),
-                    RequestStatus.CONFIRMED.toString());
-            EventShortDto eventShortDto = EventMapper.eventToShortDto(events.get(i),
-                    confirmedRequests, stats.get(i).getHits());
+        for (Event event : events) {
+            Long views = viewsStats.getOrDefault(event.getId(), 0L);
+            Long confirmedRequests = confirmedRequestsCount.getOrDefault(event.getId(), 0L);
+            EventShortDto eventShortDto = EventMapper.eventToShortDto(event,
+                    confirmedRequests, views);
             result.add(eventShortDto);
         }
         return result;
@@ -162,10 +165,10 @@ public class EventServiceImpl implements EventService {
         if (dto.getEventDate() != null) {
             LocalDateTime eventDate = LocalDateTime.parse(dto.getEventDate(), Constants.FORMATTER);
 
-            if (eventDate.isBefore(LocalDateTime.now()) || eventDate.isBefore(LocalDateTime.now().plusHours(2))) {
+            if (eventDate.isBefore(LocalDateTime.now().plusHours(2))) {
                 log.error("Обновление данных события. Время начала события не может быть в прошлом " +
                         "и должно начинаться не ранее, чем через два часа от текущего момента.");
-                throw new CreationRulesException("Время начала события не может быть в прошлом " +
+                throw new ValidationException("Время начала события не может быть в прошлом " +
                         "и должно начинаться не ранее, чем через два часа от текущего момента.");
             }
 
@@ -218,15 +221,12 @@ public class EventServiceImpl implements EventService {
         }
 
         Event patchedEvent = eventRepository.save(oldEvent);
-        List<StatResponseDto> stats = getViewsStats(List.of(patchedEvent));
 
-        return EventMapper.eventToFullDto(
-                patchedEvent,
-                requestRepository.countByEvent_IdAndStatus(eventId,
-                        RequestStatus.CONFIRMED.toString()),
-                stats.getFirst().getHits()
-        );
-
+        Map<Long, Long> confirmedRequestsCount = getConfirmedRequestsCount(List.of(patchedEvent));
+        Map<Long, Long> viewsStats = getViewsCount(List.of(patchedEvent));
+        Long views = viewsStats.getOrDefault(patchedEvent.getId(), 0L);
+        Long confirmedRequests = confirmedRequestsCount.getOrDefault(patchedEvent.getId(), 0L);
+        return EventMapper.eventToFullDto(patchedEvent, confirmedRequests, views);
     }
 
     @Override
@@ -262,7 +262,7 @@ public class EventServiceImpl implements EventService {
         Event event = eventRepository.findById(eventId).orElseThrow(() -> new NotFoundException(
                 "Обновление данных события. Событие с ID: " + eventId + " не найдено."));
         Long participantLimit = event.getParticipantLimit().longValue();
-        Long approvedRequestsCount = requestRepository.countByEvent_IdAndStatus(eventId, RequestStatus.CONFIRMED.toString());
+        Long approvedRequestsCount = requestRepository.countByEvent_IdAndStatus(eventId, RequestStatus.CONFIRMED);
 
         if (participantLimit.equals(approvedRequestsCount)) {
             log.error("Обновление статусов заявок на участие в событии. " +
@@ -271,7 +271,7 @@ public class EventServiceImpl implements EventService {
         }
 
         List<ParticipationRequest> requests = requestRepository.findAllByIdInAndStatusOrderByCreatedAsc(
-                dto.getRequestIds(), RequestStatus.PENDING.toString());
+                dto.getRequestIds(), RequestStatus.PENDING);
 
         if (requests.isEmpty()) {
             log.error("Обновление статусов заявок на участие в событии. " +
@@ -314,23 +314,23 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public List<EventFullDto> getEventsByAdminParam(AdminEventParam param) {
+    public List<EventFullDto> getEventsByAdminRequest(AdminEventRequestParam param) {
         Pageable pageable = PageRequest.of(param.getFrom() / param.getSize(), param.getSize());
-        List<Event> events = eventRepository.findByAdminParam(param, pageable);
+        List<Event> events = eventRepository.findByAdminRequest(param, pageable);
 
         if (events == null || events.isEmpty()) {
             log.info("Уровень Admin. Получение списка событий. По заданным параметрам " +
                     "(param: {}, from: {}, size {}) события не найдены.", param, param.getFrom(), param.getSize());
             return new ArrayList<>();
         }
-        List<StatResponseDto> stats = getViewsStats(events);
 
+        Map<Long, Long> confirmedRequestsCount = getConfirmedRequestsCount(events);
+        Map<Long, Long> viewsStats = getViewsCount(events);
         List<EventFullDto> result = new ArrayList<>();
-        for (int i = 0; i < events.size(); i++) {
-            Long confirmedRequests = requestRepository.countByEvent_IdAndStatus(events.get(i).getId(),
-                    RequestStatus.CONFIRMED.toString());
-            EventFullDto eventFullDto = EventMapper.eventToFullDto(events.get(i),
-                    confirmedRequests, stats.get(i).getHits());
+        for (Event event : events) {
+            Long views = viewsStats.getOrDefault(event.getId(), 0L);
+            Long confirmedRequests = confirmedRequestsCount.getOrDefault(event.getId(), 0L);
+            EventFullDto eventFullDto = EventMapper.eventToFullDto(event, confirmedRequests, views);
             result.add(eventFullDto);
         }
         return result;
@@ -362,10 +362,10 @@ public class EventServiceImpl implements EventService {
         if (dto.getEventDate() != null) {
             LocalDateTime eventDate = LocalDateTime.parse(dto.getEventDate(), Constants.FORMATTER);
 
-            if (eventDate.isBefore(LocalDateTime.now()) || eventDate.isBefore(LocalDateTime.now().plusHours(1))) {
+            if (eventDate.isBefore(LocalDateTime.now().plusHours(1))) {
                 log.error("Уровень Admin. Обновление данных события. Время начала события не может быть в прошлом " +
                         "и должно начинаться не ранее, чем через один час от даты публикации.");
-                throw new CreationRulesException("Обновление данных события администратором. " +
+                throw new ValidationException("Обновление данных события администратором. " +
                         "Время начала события не может быть в прошлом " +
                         "и должно начинаться не ранее, чем через один час от даты публикации.");
             }
@@ -411,17 +411,74 @@ public class EventServiceImpl implements EventService {
         }
 
         Event patchedEvent = eventRepository.save(oldEvent);
-        List<StatResponseDto> stats = getViewsStats(List.of(patchedEvent));
 
-        return EventMapper.eventToFullDto(
-                patchedEvent,
-                requestRepository.countByEvent_IdAndStatus(eventId,
-                        RequestStatus.CONFIRMED.toString()),
-                stats.getFirst().getHits()
-        );
+        Map<Long, Long> confirmedRequestsCount = getConfirmedRequestsCount(List.of(patchedEvent));
+        Map<Long, Long> viewsStats = getViewsCount(List.of(patchedEvent));
+        Long views = viewsStats.getOrDefault(patchedEvent.getId(), 0L);
+        Long confirmedRequests = confirmedRequestsCount.getOrDefault(patchedEvent.getId(), 0L);
+        return EventMapper.eventToFullDto(patchedEvent, confirmedRequests, views);
     }
 
-    private List<StatResponseDto> getViewsStats(List<Event> events) {
+    @Override
+    public List<EventShortDto> getEventsByPublicRequest(PublicEventRequestParam param) {
+        Pageable pageable = PageRequest.of(param.getFrom() / param.getSize(), param.getSize());
+        List<Event> events = eventRepository.findByPublicRequest(param, pageable);
+
+        if (events == null || events.isEmpty()) {
+            log.info("Уровень Public. Получение списка событий. По заданным параметрам " +
+                    "(param: {}, from: {}, size {}) события не найдены.", param, param.getFrom(), param.getSize());
+            return new ArrayList<>();
+        }
+
+        Map<Long, Long> confirmedRequestsCount = getConfirmedRequestsCount(events);
+
+        if (param.getOnlyAvailable() == true) {
+            Predicate<Event> isAvailable = event -> event.getParticipantLimit() >
+                    confirmedRequestsCount.get(event.getId());
+            events = events.stream()
+                    .filter(isAvailable)
+                    .toList();
+        }
+
+        Map<Long, Long> viewsStats = getViewsCount(events);
+        List<EventShortDto> result = new ArrayList<>();
+        for (Event event : events) {
+            Long views = viewsStats.getOrDefault(event.getId(), 0L);
+            Long confirmedRequests = confirmedRequestsCount.getOrDefault(event.getId(), 0L);
+            EventShortDto eventShortDto = EventMapper.eventToShortDto(event,
+                    confirmedRequests, views);
+            result.add(eventShortDto);
+        }
+
+        if (param.getSort().equalsIgnoreCase("views")) {
+            return result.stream()
+                    .sorted(Comparator.comparingLong(EventShortDto::getViews).reversed())
+                    .toList();
+        } else {
+            return result;
+        }
+    }
+
+
+    @Override
+    public EventFullDto getEventByIdByPublicRequest(Long eventId) {
+        Event event = eventRepository.findById(eventId).orElseThrow(() -> new NotFoundException(
+                "Публичный запрос на получение данных о событии. Событие с ID: " + eventId + " не найдено."));
+
+        if (!event.getState().equals(EventState.PUBLISHED)) {
+            log.error("Уровень Public. Можно получить данные только события со статусом {}.", EventState.PUBLISHED);
+            throw new ValidationException("Публичный запрос на получение данных о событии. " +
+                    "Можно получить данные только опубликованного события.");
+        }
+
+        Map<Long, Long> confirmedRequestsCount = getConfirmedRequestsCount(List.of(event));
+        Map<Long, Long> viewsStats = getViewsCount(List.of(event));
+        Long views = viewsStats.getOrDefault(event.getId(), 0L);
+        Long confirmedRequests = confirmedRequestsCount.getOrDefault(event.getId(), 0L);
+        return EventMapper.eventToFullDto(event, confirmedRequests, views);
+    }
+
+    private Map<Long, Long> getViewsCount(List<Event> events) {
 
         List<String> uris = new ArrayList<>();
         for (Event event : events) {
@@ -436,7 +493,30 @@ public class EventServiceImpl implements EventService {
                 true
         );
 
-        return statClient.getStats(statRequestParamDto);
+        List<StatResponseDto> stats = statClient.getStats(statRequestParamDto);
+
+        Map<Long, Long> result = new HashMap<>();
+        for (StatResponseDto dto : stats) {
+            Long eventId = Long.valueOf(dto.getUri().replace("/events/", ""));
+            Long views = dto.getHits();
+            result.put(eventId, views);
+        }
+        return result;
+    }
+
+    private Map<Long, Long> getConfirmedRequestsCount(List<Event> events) {
+        List<Long> eventIds = events.stream()
+                .map(Event::getId)
+                .toList();
+
+        List<ConfirmedRequestCount> count = requestRepository
+                .countConfirmedRequestsByEventIds(eventIds, RequestStatus.CONFIRMED);
+
+        return count.stream()
+                .collect(Collectors.toMap(
+                        ConfirmedRequestCount::getEventId,
+                        ConfirmedRequestCount::getCount
+                ));
     }
 
 }

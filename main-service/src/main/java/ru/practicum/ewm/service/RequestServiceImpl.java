@@ -34,9 +34,9 @@ public class RequestServiceImpl implements RequestService {
     @Transactional
     @Override
     public ParticipationRequestDto createRequest(CreateUpdateRequestDto dto) {
-//        Дата создания
+        //Дата создания
         LocalDateTime nowDate = LocalDateTime.now();
-//        Получение сущностей для создания связей через JPA
+        //Получение сущностей для создания связей через JPA
         Event event = findEvent(dto.getEventId());
         User requester = findUser(dto.getUserId());
 
@@ -63,7 +63,7 @@ public class RequestServiceImpl implements RequestService {
 
         // Проверка лимита участников
         Long approvedRequestsCount = requestRepository.countByEvent_IdAndStatus(
-                event.getId(), RequestStatus.CONFIRMED.toString());
+                event.getId(), RequestStatus.CONFIRMED);
 
         if (event.getParticipantLimit() > 0 && approvedRequestsCount >= event.getParticipantLimit()) {
             log.error("Достигнут лимит участников для event {}. Limit: {}, CONFIRMED: {}",
@@ -82,7 +82,7 @@ public class RequestServiceImpl implements RequestService {
         }
 
 
-//        Получение готовой сущности
+        //Получение готовой сущности
         ParticipationRequest req = RequestMapper.toEntity(
                 nowDate,
                 event,
@@ -90,9 +90,9 @@ public class RequestServiceImpl implements RequestService {
                 initialStatus
         );
 
-        log.info("оздание запроса для userId={} с eventId={} со statusId={}",
+        log.info("Создание запроса для userId={} с eventId={} со statusId={}",
                 requester.getId(), event.getId(), initialStatus);
-//        Сохранение
+        //Сохранение
         return RequestMapper.toParticipationRequestDto(
                 requestRepository.save(req)
         );
@@ -109,10 +109,10 @@ public class RequestServiceImpl implements RequestService {
     @Transactional
     @Override
     public ParticipationRequestDto canceledRequest(Long userId, Long requestId) {
-//        Проверка на существование сущностей
+        //Проверка на существование сущностей
         User requester = findUser(userId);
 
-//        Меняем статус
+        //Меняем статус
         if (requestRepository.changeState(requestId, RequestStatus.CANCELED) > 0)
             log.info("Статус запроса с id:{}, успешно изменён на {}}", requestId, RequestStatus.CANCELED);
 
@@ -121,21 +121,21 @@ public class RequestServiceImpl implements RequestService {
         );
     }
 
-    //    Получение пользователя
+    //Получение пользователя
     private User findUser(Long userId) {
         return userRepository.findById(userId).orElseThrow(
                 () -> new NotFoundException("User with id " + userId + " not found")
         );
     }
 
-    //    Получение события
+    //Получение события
     private Event findEvent(Long eventId) {
         return eventRepository.findById(eventId).orElseThrow(
                 () -> new NotFoundException("Event with id " + eventId + " not found")
         );
     }
 
-    //    Получение запроса
+    //Получение запроса
     private ParticipationRequest findParticipationRequest(Long requestId) {
         return requestRepository.findById(requestId).orElseThrow(
                 () -> new NotFoundException("Request with id " + requestId + " not found")

@@ -3,6 +3,7 @@ package ru.practicum.ewm.repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+import ru.practicum.ewm.dto.event.ConfirmedRequestCount;
 import ru.practicum.ewm.model.request.ParticipationRequest;
 import ru.practicum.ewm.model.request.RequestStatus;
 
@@ -27,11 +28,17 @@ public interface RequestRepository extends JpaRepository<ParticipationRequest, L
             """)
     int changeState(long requestId, RequestStatus state);
 
-    Long countByEvent_IdAndStatus(Long eventId, String status);
+    Long countByEvent_IdAndStatus(Long eventId, RequestStatus status);
+
+    @Query("select new ru.practicum.ewm.dto.event.ConfirmedRequestCount(r.event.id, count(r.id)) " +
+            "from ParticipationRequest r " +
+            "where r.event.id in :eventIds and r.status = :status " +
+            "group by r.event.id")
+    List<ConfirmedRequestCount> countConfirmedRequestsByEventIds(List<Long> eventIds, RequestStatus status);
 
     List<ParticipationRequest> findAllByEvent_Id(Long eventId);
 
-    List<ParticipationRequest> findAllByIdInAndStatusOrderByCreatedAsc(List<Long> requestsIds, String status);
+    List<ParticipationRequest> findAllByIdInAndStatusOrderByCreatedAsc(List<Long> requestsIds, RequestStatus status);
 
     Optional<ParticipationRequest> findByRequester_IdAndEvent_Id(Long userId, Long eventId);
 }
