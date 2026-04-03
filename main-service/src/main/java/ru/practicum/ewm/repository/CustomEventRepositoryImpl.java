@@ -4,7 +4,8 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.data.domain.Pageable;
 import ru.practicum.ewm.constants.Constants;
-import ru.practicum.ewm.dto.event.AdminEventParam;
+import ru.practicum.ewm.dto.event.AdminEventRequestParam;
+import ru.practicum.ewm.dto.event.PublicEventRequestParam;
 import ru.practicum.ewm.model.event.Event;
 import ru.practicum.ewm.model.event.QEvent;
 
@@ -13,13 +14,15 @@ import java.util.List;
 
 public class CustomEventRepositoryImpl implements CustomEventRepository {
     private final JPAQueryFactory queryFactory;
+    private final RequestRepository requestRepository;
 
-    public CustomEventRepositoryImpl(JPAQueryFactory queryFactory) {
+    public CustomEventRepositoryImpl(JPAQueryFactory queryFactory,RequestRepository requestRepository) {
         this.queryFactory = queryFactory;
+        this.requestRepository = requestRepository;
     }
 
     @Override
-    public List<Event> findByAdminParam(AdminEventParam param, Pageable pageable) {
+    public List<Event> findByAdminRequest(AdminEventRequestParam param, Pageable pageable) {
         BooleanBuilder builder = new BooleanBuilder();
 
         if (param.getUsers() != null && !param.getUsers().isEmpty()) {
@@ -42,6 +45,47 @@ public class CustomEventRepositoryImpl implements CustomEventRepository {
         if (param.getRangeEnd() != null && !param.getRangeEnd().isBlank()) {
             LocalDateTime end = LocalDateTime.parse(param.getRangeEnd(), Constants.FORMATTER);
             builder.and(QEvent.event.eventDate.loe(end));
+        }
+
+        return queryFactory
+                .selectFrom(QEvent.event)
+                .where(builder)
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .orderBy(QEvent.event.eventDate.asc())
+                .fetch();
+    }
+
+    @Override
+    public List<Event> findByPublicRequest(PublicEventRequestParam param, Pageable pageable) {
+        BooleanBuilder builder = new BooleanBuilder();
+
+        if (param.getText() != null && !param.getText().isBlank()) {
+            builder.and(QEvent.event.annotation.containsIgnoreCase(param.getText())
+                    .or(QEvent.event.description.containsIgnoreCase(param.getText())));
+        }
+
+        if (param.getCategories() != null && !param.getCategories().isEmpty()) {
+            builder.and(QEvent.event.category.id.in(param.getCategories()));
+        }
+
+        if (param.getPaid() != null) {
+            builder.and(QEvent.event.paid.eq(param.getPaid()));
+        }
+
+        if (param.getRangeStart() != null && !param.getRangeStart().isBlank()) {
+            LocalDateTime start = LocalDateTime.parse(param.getRangeStart(), Constants.FORMATTER);
+            builder.and(QEvent.event.eventDate.goe(start));
+        }
+
+        if (param.getRangeEnd() != null && !param.getRangeEnd().isBlank()) {
+            LocalDateTime end = LocalDateTime.parse(param.getRangeEnd(), Constants.FORMATTER);
+            builder.and(QEvent.event.eventDate.loe(end));
+        }
+
+        if ((param.getRangeStart() == null || param.getRangeStart().isBlank())
+                && (param.getRangeEnd() == null || param.getRangeEnd().isBlank())) {
+            builder.and(QEvent.event.eventDate.goe(LocalDateTime.now()));
         }
 
         return queryFactory

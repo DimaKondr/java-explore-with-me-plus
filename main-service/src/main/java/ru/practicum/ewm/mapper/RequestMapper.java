@@ -12,8 +12,7 @@ import java.time.LocalDateTime;
 @UtilityClass
 public class RequestMapper {
 
-//    Преобразование в сущность
-
+    //Преобразование в сущность
     public ParticipationRequest toEntity(LocalDateTime nowData, Event event, User requester, RequestStatus status) {
         return ParticipationRequest.builder()
                 .created(nowData)
@@ -23,8 +22,7 @@ public class RequestMapper {
                 .build();
     }
 
-//    Преобразование в dto
-
+    //Преобразование в dto
     public ParticipationRequestDto toParticipationRequestDto(ParticipationRequest req) {
         return ParticipationRequestDto.builder()
                 .id(req.getId())

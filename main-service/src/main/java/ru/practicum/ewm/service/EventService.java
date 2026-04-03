@@ -22,8 +22,12 @@ public interface EventService {
     EventRequestStatusUpdateResult patchRequestsStatusOfEvent(Long userId, Long eventId,
                                                               EventRequestStatusUpdateRequest dto);
 
-    List<EventFullDto> getEventsByAdminParam(AdminEventParam param);
+    List<EventFullDto> getEventsByAdminRequest(AdminEventRequestParam param);
 
     EventFullDto patchEventByIdByAdmin(Long eventId, UpdateEventAdminRequest dto);
+
+    List<EventShortDto> getEventsByPublicRequest(PublicEventRequestParam param);
+
+    EventFullDto getEventByIdByPublicRequest(Long eventId);
 
 }
