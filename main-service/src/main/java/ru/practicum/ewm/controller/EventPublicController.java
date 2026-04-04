@@ -59,7 +59,6 @@ public class EventPublicController {
                 .build();
         List<EventShortDto> result = eventService.getEventsByPublicRequest(param);
         HitDto hitDto = HitDto.builder()
-                //.id(null)
                 .app("ewm-main-service")
                 .uri(request.getRequestURI())
                 .ip(request.getRemoteAddr())
@@ -79,7 +78,6 @@ public class EventPublicController {
         log.info("Уровень Public. Получение данных о событии с ID: {}. ",eventId);
         EventFullDto result = eventService.getEventByIdByPublicRequest(eventId);
         HitDto hitDto = HitDto.builder()
-                //.id(eventId)
                 .app("ewm-main-service")
                 .uri(request.getRequestURI())
                 .ip(request.getRemoteAddr())

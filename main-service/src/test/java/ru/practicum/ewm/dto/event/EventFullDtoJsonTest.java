@@ -14,7 +14,6 @@ import java.time.LocalDateTime;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
-
 @JsonTest
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 class EventFullDtoJsonTest {

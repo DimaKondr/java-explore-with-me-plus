@@ -14,7 +14,6 @@ public class HitMapper {
 
     public Hit toEntity(HitDto dto) {
         Hit hit = new Hit();
-        //hit.setId(dto.getId());
         hit.setApp(dto.getApp());
         hit.setUri(dto.getUri());
         hit.setIp(dto.getIp());
@@ -24,7 +23,7 @@ public class HitMapper {
 
     public HitDto toDto(Hit hit) {
         HitDto dto = new HitDto();
-        //dto.setId(hit.getId());
+        dto.setId(hit.getId());
         dto.setApp(hit.getApp());
         dto.setUri(hit.getUri());
         dto.setIp(hit.getIp());

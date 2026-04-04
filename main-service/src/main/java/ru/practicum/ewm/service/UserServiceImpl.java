@@ -1,6 +1,5 @@
 package ru.practicum.ewm.service;
 
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -42,20 +41,8 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<UserDto> getUsers(List<Long> ids, Integer from, Integer size) {
         log.info("Получение пользователей: ids={}, from={}, size={}", ids, from, size);
-
-        /*Pageable pageable = PageRequest.of(from / size, size);
-
-        List<User> users;
-        if (ids != null && !ids.isEmpty()) {
-            users = userRepository.findAllByIds(ids, pageable).getContent();
-        } else {
-            users = userRepository.findAll(pageable).getContent();
-        }*/
         int page = from / size;
         Pageable pageable = PageRequest.of(page, size);
-
-        /*log.info("Найдено пользователей: {}", users.size());
-        return users.stream()*/
         return userRepository.findAllByIds(ids, pageable)
                 .stream()
                 .map(UserMapper::toUserDto)

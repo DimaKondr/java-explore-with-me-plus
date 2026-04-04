@@ -15,9 +15,7 @@ import java.util.List;
 public class UpdateCompilationDto {
 
     private Long id;
-
     private List<Long> events;
-
     private Boolean pinned;
 
     @Size(max = 50, message = "Длина названия подборки должна быть не более 50 символов")

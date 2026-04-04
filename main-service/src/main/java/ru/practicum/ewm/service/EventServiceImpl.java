@@ -55,13 +55,6 @@ public class EventServiceImpl implements EventService {
 
         LocalDateTime eventDate = LocalDateTime.parse(dto.getEventDate(), Constants.FORMATTER);
 
-        /*if (eventDate.isBefore(LocalDateTime.now()) && eventDate.isBefore(LocalDateTime.now().plusHours(2))) {
-            log.error("Добавление события. Время начала события не может быть в прошлом " +
-                    "и должно начинаться не ранее, чем через два часа от текущего момента.");
-            throw new ValidationException("Время начала события не может быть в прошлом " +
-                    "и должно начинаться не ранее, чем через два часа от текущего момента.");
-        }*/
-
         if (eventDate.isBefore(LocalDateTime.now().plusHours(2))) {
             log.error("Добавление события. " +
                     "Время начала события должно быть не ранее, чем через два часа от текущего момента.");
@@ -87,7 +80,6 @@ public class EventServiceImpl implements EventService {
                 LocalDateTime.now(),
                 initiator,
                 location,
-                //LocalDateTime.now(),
                 null,
                 EventState.PENDING
         );
@@ -181,11 +173,6 @@ public class EventServiceImpl implements EventService {
                     "или события в состоянии ожидания модерации.");
         }
 
-        /*if (!userRepository.existsById(userId)) {
-            log.error("Обновление данных события. Пользователь с ID: {} не найден.", userId);
-            throw new NotFoundException("Обновление данных события. Пользователь с ID: " + userId + " не найден.");
-        }*/
-
         if (dto.getEventDate() != null) {
             LocalDateTime eventDate = LocalDateTime.parse(dto.getEventDate(), Constants.FORMATTER);
 
@@ -257,18 +244,6 @@ public class EventServiceImpl implements EventService {
     public List<ParticipationRequestDto> getRequestsOfEvent(Long userId, Long eventId) {
         Event event = eventRepository.findById(eventId).orElseThrow(() -> new NotFoundException(
                 "Получение запросов на участие в событии. Событие с ID: " + eventId + " не найдено."));
-        /*if (!userRepository.existsById(userId)) {
-            log.error("Получение запросов на участие в событии. Пользователь с ID: {} не найден.", userId);
-            throw new NotFoundException("Получение запросов на участие в событии. " +
-                    "Инициатор события (ID пользователя: " + userId + ") не найден.");
-        }*/
-
-        /*if (!eventRepository.existsById(eventId)) {
-            log.error("Получение запросов на участие в событии. Событие с ID: {} не найдено.", userId);
-            throw new NotFoundException("Получение запросов на участие в событии. " +
-                    "Событие с ID: " + eventId + " не найдено.");
-        }*/
-
         if (!event.getInitiator().getId().equals(userId)) {
             log.error("Получение запросов на участие в событии. " +
                     "Пользователь с ID: {} не является инициатором события с ID: {}", userId, eventId);
@@ -281,11 +256,6 @@ public class EventServiceImpl implements EventService {
             log.info("Получение запросов на участие в событии. По событию с ID: {} запросов не найдено.", eventId);
             return new ArrayList<>();
         }
-        /*List<ParticipationRequestDto> result = new ArrayList<>();
-        for (ParticipationRequest request : requests) {
-            result.add(RequestMapper.toParticipationRequestDto(request));
-        }
-        return result;*/
         return requests.stream()
                 .map(RequestMapper::toParticipationRequestDto)
                 .collect(Collectors.toList());
@@ -299,15 +269,18 @@ public class EventServiceImpl implements EventService {
                 "Обновление данных события. Событие с ID: " + eventId + " не найдено."));
 
         if (!event.getInitiator().getId().equals(userId)) {
-            log.error("Обновление статусов заявок. Пользователь с ID: {} не является инициатором события с ID: {}", userId, eventId);
-            throw new NotFoundException("Пользователь с ID: " + userId + " не является инициатором события с ID: " + eventId);
+            log.error("Обновление статусов заявок. " +
+                    "Пользователь с ID: {} не является инициатором события с ID: {}", userId, eventId);
+            throw new NotFoundException("Пользователь с ID: " +
+                    userId + " не является инициатором события с ID: " + eventId);
         }
 
         Long participantLimit = event.getParticipantLimit().longValue();
         Long approvedRequestsCount = requestRepository.countByEvent_IdAndStatus(eventId, RequestStatus.CONFIRMED);
 
         if (participantLimit > 0 && approvedRequestsCount >= participantLimit) {
-            log.error("Обновление статусов заявок. Достигнут лимит одобренных заявок ({}), нельзя подтвердить больше.", approvedRequestsCount);
+            log.error("Обновление статусов заявок. " +
+                    "Достигнут лимит одобренных заявок ({}), нельзя подтвердить больше.", approvedRequestsCount);
             throw new ConflictException("Достигнут лимит участников события");
         }
         List<ParticipationRequest> allRequests = requestRepository.findAllById(dto.getRequestIds());
@@ -335,20 +308,11 @@ public class EventServiceImpl implements EventService {
                 request.setStatus(RequestStatus.REJECTED);
             }
             requestRepository.saveAll(requests);
-
-        /*List<ParticipationRequest> requests = requestRepository.findAllByIdInAndStatusOrderByCreatedAsc(
-                dto.getRequestIds(), RequestStatus.PENDING);*/
             List<ParticipationRequestDto> resultRejectedRequestsDto = requests.stream()
                     .map(RequestMapper::toParticipationRequestDto)
                     .toList();
             return new EventRequestStatusUpdateResult(List.of(), resultRejectedRequestsDto);
         }
-
-        /*if (requests.isEmpty()) {
-            log.error("Обновление статусов заявок на участие в событии. " +
-                    "По списку ID не найдено запросов, ожидающих подтверждения.");
-            throw new NotFoundException("По списку ID не найдено запросов, ожидающих подтверждения.");
-        }*/
 
         if (dto.getRequestIds().size() != requests.size()) {
             if (participantLimit.equals(approvedRequestsCount) && participantLimit > 0) {
@@ -469,8 +433,6 @@ public class EventServiceImpl implements EventService {
         }
 
         if (dto.getLocation() != null) {
-            /*oldEvent.getLocation().setLat(dto.getLocation().getLat());
-            oldEvent.getLocation().setLon(dto.getLocation().getLon());*/
             if (oldEvent.getLocation() != null) {
                 oldEvent.getLocation().setLat(dto.getLocation().getLat());
                 oldEvent.getLocation().setLon(dto.getLocation().getLon());

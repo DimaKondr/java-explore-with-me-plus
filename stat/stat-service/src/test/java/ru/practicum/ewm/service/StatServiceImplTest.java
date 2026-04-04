@@ -38,7 +38,7 @@ class StatServiceImplTest {
     @BeforeEach
     void setUp() {
         hitDto = new HitDto();
-        //hitDto.setId(1L);
+        hitDto.setId(1L);
         hitDto.setApp("test-app");
         hitDto.setUri("/test");
         hitDto.setIp("127.0.0.1");
@@ -63,7 +63,7 @@ class StatServiceImplTest {
         HitDto result = statService.createHit(hitDto);
 
         assertNotNull(result);
-        //assertEquals(hitDto.getId(), result.getId());
+        assertEquals(hitDto.getId(), result.getId());
         assertEquals(hitDto.getApp(), result.getApp());
         assertEquals(hitDto.getUri(), result.getUri());
         assertEquals(hitDto.getIp(), result.getIp());

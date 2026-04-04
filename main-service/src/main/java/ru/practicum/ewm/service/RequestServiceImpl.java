@@ -86,21 +86,6 @@ public class RequestServiceImpl implements RequestService {
 
         ParticipationRequest request = RequestMapper.toEntity(now, event, requester, initialStatus);
         ParticipationRequest saved = requestRepository.save(request);
-
-        /*//Получение готовой сущности
-        ParticipationRequest req = RequestMapper.toEntity(
-                now,
-                event,
-                requester,
-                initialStatus
-        );
-
-        log.info("Создание запроса для userId={} с eventId={} со statusId={}",
-                requester.getId(), event.getId(), initialStatus);
-        //Сохранение
-        return RequestMapper.toParticipationRequestDto(
-                requestRepository.save(req)
-        );*/
         log.info("Создан запрос с id={}, статус={}", saved.getId(), initialStatus);
         return RequestMapper.toParticipationRequestDto(saved);
     }
@@ -120,8 +105,6 @@ public class RequestServiceImpl implements RequestService {
     @Transactional
     @Override
     public ParticipationRequestDto canceledRequest(Long userId, Long requestId) {
-        /*//Проверка на существование сущностей
-        User requester = findUser(userId);*/
         log.info("Отмена запроса: userId={}, requestId={}", userId, requestId);
 
         findUser(userId); // проверка существования
@@ -139,14 +122,6 @@ public class RequestServiceImpl implements RequestService {
             log.error("Нельзя отменить запрос со статусом: {}", request.getStatus());
             throw new ConflictException("Можно отменить только запросы в статусе PENDING");
         }
-
-        /*//Меняем статус
-        if (requestRepository.changeState(requestId, RequestStatus.CANCELED) > 0)
-            log.info("Статус запроса с id:{}, успешно изменён на {}}", requestId, RequestStatus.CANCELED);
-
-        return RequestMapper.toParticipationRequestDto(
-                findParticipationRequest(requestId)
-        );*/
         request.setStatus(RequestStatus.CANCELED);
         ParticipationRequest canceled = requestRepository.save(request);
         log.info("Запрос с id={} отменен", requestId);

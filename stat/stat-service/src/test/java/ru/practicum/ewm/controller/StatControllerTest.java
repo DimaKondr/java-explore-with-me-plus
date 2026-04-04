@@ -33,7 +33,7 @@ class StatControllerTest {
     @BeforeEach
     void setUp() {
         hitDto = new HitDto();
-        //hitDto.setId(1L);
+        hitDto.setId(1L);
         hitDto.setApp("test-app");
         hitDto.setUri("/test");
         hitDto.setIp("127.0.0.1");
@@ -49,7 +49,7 @@ class StatControllerTest {
         HitDto result = statController.createHit(hitDto);
 
         assertNotNull(result);
-        //assertEquals(1L, result.getId());
+        assertEquals(1L, result.getId());
         assertEquals("test-app", result.getApp());
         assertEquals("/test", result.getUri());
         assertEquals("127.0.0.1", result.getIp());

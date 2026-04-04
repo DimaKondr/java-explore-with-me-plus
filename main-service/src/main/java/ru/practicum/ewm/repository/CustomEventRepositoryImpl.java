@@ -18,12 +18,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CustomEventRepositoryImpl implements CustomEventRepository {
     private final JPAQueryFactory queryFactory;
-    //private final RequestRepository requestRepository;
-
-    /*public CustomEventRepositoryImpl(JPAQueryFactory queryFactory,RequestRepository requestRepository) {
-        this.queryFactory = queryFactory;
-        this.requestRepository = requestRepository;
-    }*/
 
     @Override
     public List<Event> findByAdminRequest(AdminEventRequestParam param, Pageable pageable) {

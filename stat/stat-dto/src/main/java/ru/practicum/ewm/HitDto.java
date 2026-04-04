@@ -14,7 +14,7 @@ import ru.practicum.ewm.annotation.ValidIp;
 @AllArgsConstructor
 @NoArgsConstructor
 public class HitDto {
-    //private Long id;
+    private Long id;
 
     @NotBlank(message = "app не может быть пустым")
     @Size(max = 255, message = "app не может быть длиннее 255 символов")
@@ -25,10 +25,6 @@ public class HitDto {
     private String uri;
 
     @NotBlank(message = "ip не может быть пустым")
-    /*@Pattern(
-            regexp = "^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$",
-            message = "Неверный формат IP адреса"
-    )*/
     @ValidIp
     private String ip;
 
@@ -38,4 +34,16 @@ public class HitDto {
             message = "Неверный формат даты. Используйте yyyy-MM-dd HH:mm:ss"
     )
     private String timestamp;
+
+    public HitDto(
+            String app,
+            String uri,
+            String ip,
+            String timestamp
+    ) {
+        this.app = app;
+        this.uri = uri;
+        this.ip = ip;
+        this.timestamp = timestamp;
+    }
 }

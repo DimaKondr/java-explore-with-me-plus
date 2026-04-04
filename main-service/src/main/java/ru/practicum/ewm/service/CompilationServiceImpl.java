@@ -35,16 +35,6 @@ public class CompilationServiceImpl implements CompilationService {
     @Transactional
     @Override
     public CompilationDto createCompilation(CreateCompilationDto dto) {
-        /*List<Event> events;
-        if (dto.getEvents() == null) {
-            events = new ArrayList<>();
-            dto.setEvents(new ArrayList<>());
-        } else
-            events = eventRepository.findAllById(dto.getEvents());
-        return CompilationMapper.toCompilationDto(
-                compilationRepository.save(CompilationMapper.toEntity(dto, events)),
-                eventService.getShortEventsInfoByIds(dto.getEvents())
-        );*/
         log.info("Создание подборки: title={}, events={}, pinned={}",
                 dto.getTitle(), dto.getEvents(), dto.getPinned());
 
@@ -72,14 +62,6 @@ public class CompilationServiceImpl implements CompilationService {
     @Transactional
     @Override
     public CompilationDto updateCompilation(UpdateCompilationDto dto) {
-        /*Compilation old = compilationRepository.findById(dto.getId()).orElseThrow(
-                () -> new NotFoundException("Compilation not found")
-        );
-        if (dto.getEvents() != null) {
-            List<Event> events = eventRepository.findAllById(dto.getEvents());
-            if (events.size() != dto.getEvents().size())
-                throw new NotFoundException("Часть переданных событий не существует");
-            old = update(old, dto, events);*/
         log.info("Обновление подборки с id: {}", dto.getId());
         log.info("Получены события для добавления: {}", dto.getEvents());
 
@@ -89,10 +71,6 @@ public class CompilationServiceImpl implements CompilationService {
         if (dto.getTitle() != null) {
             compilation.setTitle(dto.getTitle());
         }
-        /*return CompilationMapper.toCompilationDto(
-                compilationRepository.save(old),
-                eventService.getShortEventsInfoByIds(dto.getEvents())
-        );*/
         if (dto.getPinned() != null) {
             compilation.setPinned(dto.getPinned());
         }
@@ -137,36 +115,8 @@ public class CompilationServiceImpl implements CompilationService {
 
     @Override
     public List<CompilationDto> getCompilations(GetManyCompilationDto dto) {
-        /*Pageable pageable = PageRequest.of(
-                0,
-                dto.getSize().intValue(),
-                Sort.by(Sort.Direction.ASC, "id")
-        );
-
-//      Получение подборок
-        List<Compilation> compilations = compilationRepository.findAllByPinnedFilter(dto.getPinned(), dto.getFrom(), pageable);
-
-//      Список всех уникальных EventShortDto во всех подборках
-        Map<Long, EventShortDto> eventsMap =
-//              Получение уникальных событий(EventShortDto) среди всех подборок
-                eventService.getShortEventsInfoByIds(
-//                              Получение уникальных id событий среди всех подборок
-                                compilations.stream()
-                                        .flatMap(c -> c.getEvents().stream())
-                                        .map(Event::getId)
-                                        .distinct()
-                                        .toList()
-                        ).stream()
-//                      Создание Map для распределения EventShortDto по подборкам
-                        .collect(Collectors.toMap(
-                                        EventShortDto::getId,
-                                        shortDto -> shortDto
-                                )
-                        );*/
         log.info("Получение подборок: pinned={}, from={}, size={}",
                 dto.getPinned(), dto.getFrom(), dto.getSize());
-
-        // ИСПРАВЛЕНО: правильная пагинация
         int page = dto.getFrom() / dto.getSize();
         Pageable pageable = PageRequest.of(page, dto.getSize());
 
@@ -208,17 +158,6 @@ public class CompilationServiceImpl implements CompilationService {
 
     @Override
     public CompilationDto getCompilationById(Long compId) {
-        /*Compilation comp = compilationRepository.findById(compId).orElseThrow(
-                () -> new NotFoundException("Compilation not found")
-        );
-        return CompilationMapper.toCompilationDto(
-                comp,
-                eventService.getShortEventsInfoByIds(
-                        comp.getEvents().stream()
-                                .map(Event::getId)
-                                .toList()
-                )
-        );*/
         log.info("Получение подборки по id: {}", compId);
 
         Compilation compilation = compilationRepository.findById(compId)
@@ -231,20 +170,4 @@ public class CompilationServiceImpl implements CompilationService {
         return CompilationMapper.toCompilationDto(compilation,
                 eventService.getShortEventsInfoByIds(eventIds));
     }
-
-    /*private Compilation update(Compilation old, UpdateCompilationDto newDto, List<Event> events) {
-        return Compilation.builder()
-                .id(old.getId())
-                .events(events != null
-                        ? events
-                        : old.getEvents())
-                .title(newDto.getTitle() != null
-                        ? newDto.getTitle()
-                        : old.getTitle())
-                .pinned(newDto.getPinned() != null
-                        ? newDto.getPinned()
-                        : old.getPinned())
-                .build();
-    }*/
-
 }
