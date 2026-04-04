@@ -22,7 +22,7 @@ public class CompilationController {
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public List<CompilationDto> getCompilations(
-            @RequestParam(defaultValue = "true") Boolean pinned,
+            @RequestParam(required = false) Boolean pinned,
             @PositiveOrZero @RequestParam(defaultValue = "0") Integer from,
             @PositiveOrZero @RequestParam(defaultValue = "10") Integer size
     ) {

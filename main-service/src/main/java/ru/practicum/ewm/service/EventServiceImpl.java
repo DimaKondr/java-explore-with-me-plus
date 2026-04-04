@@ -589,7 +589,7 @@ public class EventServiceImpl implements EventService {
 
         if (!event.getState().equals(EventState.PUBLISHED)) {
             log.error("Уровень Public. Можно получить данные только события со статусом {}.", EventState.PUBLISHED);
-            throw new ValidationException("Публичный запрос на получение данных о событии. " +
+            throw new NotFoundException("Публичный запрос на получение данных о событии. " +
                     "Можно получить данные только опубликованного события.");
         }
 
