@@ -519,6 +519,16 @@ public class EventServiceImpl implements EventService {
     public List<EventShortDto> getEventsByPublicRequest(PublicEventRequestParam param) {
         log.info("Публичный поиск событий: {}", param);
 
+        Integer from = param.getFrom() != null ? param.getFrom() : 0;
+        Integer size = param.getSize() != null && param.getSize() > 0 ? param.getSize() : 10;
+
+        if (size <= 0) {
+            size = 10;
+        }
+        if (from < 0) {
+            from = 0;
+        }
+
         LocalDateTime rangeStart = null;
         LocalDateTime rangeEnd = null;
 
@@ -533,20 +543,20 @@ public class EventServiceImpl implements EventService {
             throw new ValidationException("Дата начала диапазона не может быть позже даты окончания");
         }
 
-        Pageable pageable = PageRequest.of(param.getFrom() / param.getSize(), param.getSize());
+        Pageable pageable = PageRequest.of(from / size, size);
         List<Event> events = eventRepository.findByPublicRequest(param, pageable);
 
         if (events == null || events.isEmpty()) {
             log.info("Уровень Public. Получение списка событий. По заданным параметрам " +
-                    "(param: {}, from: {}, size {}) события не найдены.", param, param.getFrom(), param.getSize());
+                    "(param: {}, from: {}, size {}) события не найдены.", param, from, size);
             return new ArrayList<>();
         }
 
         Map<Long, Long> confirmedRequestsCount = getConfirmedRequestsCount(events);
 
-        if (param.getOnlyAvailable() == true) {
+        if (Boolean.TRUE.equals(param.getOnlyAvailable())) {
             Predicate<Event> isAvailable = event -> event.getParticipantLimit() >
-                    confirmedRequestsCount.get(event.getId());
+                    confirmedRequestsCount.getOrDefault(event.getId(), 0L);
             events = events.stream()
                     .filter(isAvailable)
                     .toList();
@@ -562,7 +572,8 @@ public class EventServiceImpl implements EventService {
             result.add(eventShortDto);
         }
 
-        if (param.getSort().equalsIgnoreCase("views")) {
+        String sort = param.getSort();
+        if (sort != null && sort.equalsIgnoreCase("views")) {
             return result.stream()
                     .sorted(Comparator.comparingLong(EventShortDto::getViews).reversed())
                     .toList();
