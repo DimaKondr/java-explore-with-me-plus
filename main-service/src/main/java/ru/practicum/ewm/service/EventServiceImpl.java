@@ -15,6 +15,7 @@ import ru.practicum.ewm.dto.request.ParticipationRequestDto;
 import ru.practicum.ewm.exception.CreationRulesException;
 import ru.practicum.ewm.exception.NotFoundException;
 import ru.practicum.ewm.exception.ValidationException;
+import ru.practicum.ewm.exception.ConflictException;
 import ru.practicum.ewm.mapper.EventMapper;
 import ru.practicum.ewm.mapper.LocationMapper;
 import ru.practicum.ewm.mapper.RequestMapper;
@@ -302,6 +303,13 @@ public class EventServiceImpl implements EventService {
             throw new NotFoundException("Пользователь с ID: " + userId + " не является инициатором события с ID: " + eventId);
         }
 
+        Long participantLimit = event.getParticipantLimit().longValue();
+        Long approvedRequestsCount = requestRepository.countByEvent_IdAndStatus(eventId, RequestStatus.CONFIRMED);
+
+        if (participantLimit > 0 && approvedRequestsCount >= participantLimit) {
+            log.error("Обновление статусов заявок. Достигнут лимит одобренных заявок ({}), нельзя подтвердить больше.", approvedRequestsCount);
+            throw new ConflictException("Достигнут лимит участников события");
+        }
         List<ParticipationRequest> allRequests = requestRepository.findAllById(dto.getRequestIds());
 
         if (allRequests.size() != dto.getRequestIds().size()) {
@@ -320,15 +328,6 @@ public class EventServiceImpl implements EventService {
         }
 
         List<ParticipationRequest> requests = allRequests;
-
-        Long participantLimit = event.getParticipantLimit().longValue();
-        Long approvedRequestsCount = requestRepository.countByEvent_IdAndStatus(eventId, RequestStatus.CONFIRMED);
-
-        /*if (participantLimit.equals(approvedRequestsCount)) {
-            log.error("Обновление статусов заявок на участие в событии. " +
-                    "Достигнут лимит одобренных заявок в событии с ID: {}.", eventId);
-            throw new CreationRulesException("Достигнут лимит одобренных заявок в событии с ID: " + eventId + ".");
-        }*/
 
         if (dto.getStatus() == RequestStatus.REJECTED) {
             // Отклоняем все заявки
