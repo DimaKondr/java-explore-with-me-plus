@@ -9,7 +9,6 @@ import ru.practicum.ewm.model.User;
 import java.time.LocalDateTime;
 import java.util.List;
 
-
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -66,11 +65,6 @@ public class Event {
     @Column(name = "title", nullable = false, length = 120)
     private String title;
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "event_compilation", // Имя промежуточной таблицы
-            joinColumns = @JoinColumn(name = "event_id"), // Ключ текущей сущности
-            inverseJoinColumns = @JoinColumn(name = "compilation_id") // Ключ связанной сущности
-    )
+    @ManyToMany(mappedBy = "events", fetch = FetchType.LAZY)
     private List<Compilation> compilations;
 }

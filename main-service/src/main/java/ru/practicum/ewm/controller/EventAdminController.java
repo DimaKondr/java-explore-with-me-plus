@@ -14,6 +14,7 @@ import ru.practicum.ewm.dto.event.UpdateEventAdminRequest;
 import ru.practicum.ewm.service.EventService;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/admin/events")
@@ -37,10 +38,14 @@ public class EventAdminController {
     ) {
         log.info("Уровень Admin. Получение списка из {} событий по необходимым параметрам. " +
                 "Пропускаем {} элементов. ", size, from);
+
+        List<Long> validUsers = filterValidIds(users);
+        List<Long> validCategories = filterValidIds(categories);
+
         AdminEventRequestParam param = AdminEventRequestParam.builder()
-                .users(users)
+                .users(validUsers)
                 .states(states)
-                .categories(categories)
+                .categories(validCategories)
                 .rangeStart(rangeStart)
                 .rangeEnd(rangeEnd)
                 .from(from)
@@ -57,8 +62,21 @@ public class EventAdminController {
                 @NotNull(message = "Уровень Admin. Данные для обновления события не могут быть null")
                 @Valid UpdateEventAdminRequest dto
     ) {
-        log.info("Уровень Admin. Обновление администратором данных события с ID: {}. ",eventId);
+        log.info("Уровень Admin. Обновление администратором данных события с ID: {}. ", eventId);
         return eventService.patchEventByIdByAdmin(eventId, dto);
+    }
+
+    /**
+     * Фильтрует список ID, оставляя только положительные ( > 0 )
+     */
+    private List<Long> filterValidIds(List<Long> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return null;
+        }
+        List<Long> validIds = ids.stream()
+                .filter(id -> id != null && id > 0)
+                .collect(Collectors.toList());
+        return validIds.isEmpty() ? null : validIds;
     }
 
 }

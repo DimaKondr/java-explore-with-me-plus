@@ -2,7 +2,9 @@ package ru.practicum.ewm.repository;
 
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Repository;
 import ru.practicum.ewm.constants.Constants;
 import ru.practicum.ewm.dto.event.AdminEventRequestParam;
 import ru.practicum.ewm.dto.event.PublicEventRequestParam;
@@ -12,14 +14,16 @@ import ru.practicum.ewm.model.event.QEvent;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Repository
+@RequiredArgsConstructor
 public class CustomEventRepositoryImpl implements CustomEventRepository {
     private final JPAQueryFactory queryFactory;
-    private final RequestRepository requestRepository;
+    //private final RequestRepository requestRepository;
 
-    public CustomEventRepositoryImpl(JPAQueryFactory queryFactory,RequestRepository requestRepository) {
+    /*public CustomEventRepositoryImpl(JPAQueryFactory queryFactory,RequestRepository requestRepository) {
         this.queryFactory = queryFactory;
         this.requestRepository = requestRepository;
-    }
+    }*/
 
     @Override
     public List<Event> findByAdminRequest(AdminEventRequestParam param, Pageable pageable) {

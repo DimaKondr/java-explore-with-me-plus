@@ -2,7 +2,6 @@
   <configuration default="false" name="ServiceApplication" type="Application" factoryName="Application">
     <option name="MAIN_CLASS_NAME" value="ru.practicum.ewm.ServiceApplication" />
     <module name="main-service" />
-    <option name="PROGRAM_PARAMETERS" value="--spring.profiles.active=local" />
     <extension name="coverage">
       <pattern>
         <option name="PATTERN" value="ewm.*" />

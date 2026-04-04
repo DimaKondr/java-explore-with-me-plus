@@ -1,20 +1,24 @@
 package ru.practicum.ewm.dto.event;
 
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.*;
 
 import java.util.List;
 
 @Value
 @Builder
-/*@Getter
-@Setter
-@AllArgsConstructor*/
+@AllArgsConstructor
 public class AdminEventRequestParam {
-    List<Long> users;
+    List<@Positive Long> users;
     List<String> states;
-    List<Long> categories;
+    List<@Positive Long> categories;
     String rangeStart;
     String rangeEnd;
+
+    @PositiveOrZero
     Integer from;
+
+    @Positive
     Integer size;
 }

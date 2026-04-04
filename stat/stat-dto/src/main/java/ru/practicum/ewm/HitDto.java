@@ -7,13 +7,14 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import ru.practicum.ewm.annotation.ValidIp;
 
 @Builder
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class HitDto {
-    private Long id;
+    //private Long id;
 
     @NotBlank(message = "app не может быть пустым")
     @Size(max = 255, message = "app не может быть длиннее 255 символов")
@@ -24,10 +25,11 @@ public class HitDto {
     private String uri;
 
     @NotBlank(message = "ip не может быть пустым")
-    @Pattern(
+    /*@Pattern(
             regexp = "^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$",
             message = "Неверный формат IP адреса"
-    )
+    )*/
+    @ValidIp
     private String ip;
 
     @NotBlank(message = "timestamp не может быть пустым")

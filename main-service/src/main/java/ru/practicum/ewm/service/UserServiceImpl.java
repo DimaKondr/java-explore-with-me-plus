@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.dto.user.NewUserRequest;
 import ru.practicum.ewm.dto.user.UserDto;
+import ru.practicum.ewm.exception.ConflictException;
 import ru.practicum.ewm.exception.NotFoundException;
 import ru.practicum.ewm.mapper.UserMapper;
 import ru.practicum.ewm.model.User;
@@ -28,6 +29,10 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public UserDto createUser(NewUserRequest request) {
         log.info("Создание пользователя: {}", request);
+
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new ConflictException("Пользователь с email '" + request.getEmail() + "' уже существует");
+        }
         User user = UserMapper.toEntity(request);
         User savedUser = userRepository.save(user);
         log.info("Пользователь создан с id: {}", savedUser.getId());
@@ -38,17 +43,21 @@ public class UserServiceImpl implements UserService {
     public List<UserDto> getUsers(List<Long> ids, Integer from, Integer size) {
         log.info("Получение пользователей: ids={}, from={}, size={}", ids, from, size);
 
-        Pageable pageable = PageRequest.of(from / size, size);
+        /*Pageable pageable = PageRequest.of(from / size, size);
 
         List<User> users;
         if (ids != null && !ids.isEmpty()) {
             users = userRepository.findAllByIds(ids, pageable).getContent();
         } else {
             users = userRepository.findAll(pageable).getContent();
-        }
+        }*/
+        int page = from / size;
+        Pageable pageable = PageRequest.of(page, size);
 
-        log.info("Найдено пользователей: {}", users.size());
-        return users.stream()
+        /*log.info("Найдено пользователей: {}", users.size());
+        return users.stream()*/
+        return userRepository.findAllByIds(ids, pageable)
+                .stream()
                 .map(UserMapper::toUserDto)
                 .collect(Collectors.toList());
     }

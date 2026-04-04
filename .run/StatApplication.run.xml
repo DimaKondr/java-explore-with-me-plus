@@ -2,7 +2,6 @@
   <configuration default="false" name="StatApplication" type="Application" factoryName="Application" nameIsGenerated="true">
     <option name="MAIN_CLASS_NAME" value="ru.practicum.ewm.StatApplication" />
     <module name="stat-service" />
-    <option name="PROGRAM_PARAMETERS" value="--spring.profiles.active=local" />
     <extension name="coverage">
       <pattern>
         <option name="PATTERN" value="ru.practicum.ewm.service.*" />

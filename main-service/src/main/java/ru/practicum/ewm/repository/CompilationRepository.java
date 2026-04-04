@@ -1,5 +1,6 @@
 package ru.practicum.ewm.repository;
 
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -11,13 +12,15 @@ import java.util.List;
 @Repository
 public interface CompilationRepository extends JpaRepository<Compilation, Long> {
 
-    @Query("""
+    /*@Query("""
             SELECT c FROM Compilation c
             LEFT JOIN c.events e
             WHERE (:pinned IS NULL OR c.pinned = :pinned)
             GROUP BY c.id
             HAVING (:from IS NULL OR COUNT(e) = :from)
             """)
-    List<Compilation> findAllByPinnedFilter(Boolean pinned, Long from, Pageable pageable);
+    List<Compilation> findAllByPinnedFilter(Boolean pinned, Long from, Pageable pageable);*/
+
+    Page<Compilation> findAllByPinned(Boolean pinned, Pageable pageable);
 
 }

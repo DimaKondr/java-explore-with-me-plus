@@ -1,6 +1,7 @@
 package ru.practicum.ewm.mapper;
 
 import lombok.experimental.UtilityClass;
+import ru.practicum.ewm.constants.Constants;
 import ru.practicum.ewm.dto.request.ParticipationRequestDto;
 import ru.practicum.ewm.model.User;
 import ru.practicum.ewm.model.event.Event;
@@ -26,7 +27,7 @@ public class RequestMapper {
     public ParticipationRequestDto toParticipationRequestDto(ParticipationRequest req) {
         return ParticipationRequestDto.builder()
                 .id(req.getId())
-                .created(req.getCreated().toString())
+                .created(req.getCreated().format(Constants.FORMATTER))
                 .event(req.getEvent().getId())
                 .requester(req.getRequester().getId())
                 .status(req.getStatus().toString())

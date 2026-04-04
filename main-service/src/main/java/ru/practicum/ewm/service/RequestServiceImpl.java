@@ -35,7 +35,7 @@ public class RequestServiceImpl implements RequestService {
     @Override
     public ParticipationRequestDto createRequest(CreateUpdateRequestDto dto) {
         //Дата создания
-        LocalDateTime nowDate = LocalDateTime.now();
+        LocalDateTime now = LocalDateTime.now();
         //Получение сущностей для создания связей через JPA
         Event event = findEvent(dto.getEventId());
         User requester = findUser(dto.getUserId());
@@ -47,7 +47,8 @@ public class RequestServiceImpl implements RequestService {
         }
         //Проверка, что инициатор не пытается участвовать в своем событии
         if (event.getInitiator().getId().equals(requester.getId())) {
-            log.error("Инициатор не может участвовать в собственном мероприятии. eventId={}, userId={}", event.getId(), requester.getId());
+            log.error("Инициатор не может участвовать в собственном мероприятии. eventId={}, userId={}",
+                    event.getId(), requester.getId());
             throw new ConflictException("Инициатор не может участвовать в собственном мероприятии");
         }
 
@@ -58,7 +59,8 @@ public class RequestServiceImpl implements RequestService {
         if (existingRequest.isPresent()) {
             log.error("Запрос пользователя {} на событие {} уже существует",
                     requester.getId(), event.getId());
-            throw new ConflictException(String.format("Запрос пользователя c id=%d на событие c id=%d уже существует", requester.getId(), event.getId()));
+            throw new ConflictException(String.format("Запрос пользователя c id=%d на событие c id=%d уже существует",
+                    requester.getId(), event.getId()));
         }
 
         // Проверка лимита участников
@@ -68,7 +70,8 @@ public class RequestServiceImpl implements RequestService {
         if (event.getParticipantLimit() > 0 && approvedRequestsCount >= event.getParticipantLimit()) {
             log.error("Достигнут лимит участников для event {}. Limit: {}, CONFIRMED: {}",
                     event.getId(), event.getParticipantLimit(), approvedRequestsCount);
-            throw new ConflictException(String.format("Достигнут лимит участников. Limit=%d, Approved=%d", event.getParticipantLimit(), approvedRequestsCount));
+            throw new ConflictException(String.format("Достигнут лимит участников. Limit=%d, Approved=%d",
+                    event.getParticipantLimit(), approvedRequestsCount));
         }
         //Определение статуса запроса
         RequestStatus initialStatus;
@@ -81,10 +84,12 @@ public class RequestServiceImpl implements RequestService {
             initialStatus = RequestStatus.PENDING;
         }
 
+        ParticipationRequest request = RequestMapper.toEntity(now, event, requester, initialStatus);
+        ParticipationRequest saved = requestRepository.save(request);
 
-        //Получение готовой сущности
+        /*//Получение готовой сущности
         ParticipationRequest req = RequestMapper.toEntity(
-                nowDate,
+                now,
                 event,
                 requester,
                 initialStatus
@@ -95,11 +100,17 @@ public class RequestServiceImpl implements RequestService {
         //Сохранение
         return RequestMapper.toParticipationRequestDto(
                 requestRepository.save(req)
-        );
+        );*/
+        log.info("Создан запрос с id={}, статус={}", saved.getId(), initialStatus);
+        return RequestMapper.toParticipationRequestDto(saved);
     }
 
     @Override
     public List<ParticipationRequestDto> getRequestByUserId(Long userId) {
+        log.info("Получение запросов пользователя с id={}", userId);
+
+        findUser(userId); // проверка существования
+
         return requestRepository.findAllByUserId(userId)
                 .stream()
                 .map(RequestMapper::toParticipationRequestDto)
@@ -109,16 +120,37 @@ public class RequestServiceImpl implements RequestService {
     @Transactional
     @Override
     public ParticipationRequestDto canceledRequest(Long userId, Long requestId) {
-        //Проверка на существование сущностей
-        User requester = findUser(userId);
+        /*//Проверка на существование сущностей
+        User requester = findUser(userId);*/
+        log.info("Отмена запроса: userId={}, requestId={}", userId, requestId);
 
-        //Меняем статус
+        findUser(userId); // проверка существования
+
+        ParticipationRequest request = findParticipationRequest(requestId);
+
+        // Проверка, что запрос принадлежит пользователю
+        if (!request.getRequester().getId().equals(userId)) {
+            log.error("Запрос с id={} не принадлежит пользователю с id={}", requestId, userId);
+            throw new NotFoundException("Запрос не найден или не принадлежит пользователю");
+        }
+
+        // Только PENDING запросы можно отменить
+        if (request.getStatus() != RequestStatus.PENDING) {
+            log.error("Нельзя отменить запрос со статусом: {}", request.getStatus());
+            throw new ConflictException("Можно отменить только запросы в статусе PENDING");
+        }
+
+        /*//Меняем статус
         if (requestRepository.changeState(requestId, RequestStatus.CANCELED) > 0)
             log.info("Статус запроса с id:{}, успешно изменён на {}}", requestId, RequestStatus.CANCELED);
 
         return RequestMapper.toParticipationRequestDto(
                 findParticipationRequest(requestId)
-        );
+        );*/
+        request.setStatus(RequestStatus.CANCELED);
+        ParticipationRequest canceled = requestRepository.save(request);
+        log.info("Запрос с id={} отменен", requestId);
+        return RequestMapper.toParticipationRequestDto(canceled);
     }
 
     //Получение пользователя

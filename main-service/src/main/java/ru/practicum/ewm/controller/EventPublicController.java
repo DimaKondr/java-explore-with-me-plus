@@ -28,14 +28,14 @@ public class EventPublicController {
 
     @GetMapping
     public List<EventShortDto> getEventsByPublicRequest(
-            @RequestParam String text,
-            @RequestParam List<Long> categories,
-            @RequestParam Boolean paid,
-            @RequestParam String rangeStart,
-            @RequestParam String rangeEnd,
+            @RequestParam(required = false) String text,
+            @RequestParam(required = false) List<Long> categories,
+            @RequestParam(required = false) Boolean paid,
+            @RequestParam(required = false) String rangeStart,
+            @RequestParam(required = false) String rangeEnd,
             @RequestParam(defaultValue = "false")
                 Boolean onlyAvailable,
-            @RequestParam
+            @RequestParam(required = false)
                 @Pattern(regexp = "EVENT_DATE|VIEWS", message = "Сортировка возможная только по EVENT_DATE или VIEWS.")
                 String sort,
             @RequestParam(defaultValue = "0")
@@ -59,7 +59,7 @@ public class EventPublicController {
                 .build();
         List<EventShortDto> result = eventService.getEventsByPublicRequest(param);
         HitDto hitDto = HitDto.builder()
-                .id(null)
+                //.id(null)
                 .app("ewm-main-service")
                 .uri(request.getRequestURI())
                 .ip(request.getRemoteAddr())
@@ -71,7 +71,7 @@ public class EventPublicController {
         return result;
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/{eventId}")
     public EventFullDto getEventByIdByPublicRequest(
             @PathVariable @Positive Long eventId,
             HttpServletRequest request
@@ -79,7 +79,7 @@ public class EventPublicController {
         log.info("Уровень Public. Получение данных о событии с ID: {}. ",eventId);
         EventFullDto result = eventService.getEventByIdByPublicRequest(eventId);
         HitDto hitDto = HitDto.builder()
-                .id(null)
+                //.id(eventId)
                 .app("ewm-main-service")
                 .uri(request.getRequestURI())
                 .ip(request.getRemoteAddr())

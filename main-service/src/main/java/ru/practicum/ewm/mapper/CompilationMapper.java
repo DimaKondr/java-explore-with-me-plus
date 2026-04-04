@@ -13,8 +13,7 @@ import java.util.List;
 @UtilityClass
 public class CompilationMapper {
 
-//    Преобразование в сущность
-
+    //Преобразование в сущность
     public Compilation toEntity(CreateCompilationDto dto, List<Event> events) {
         return Compilation.builder()
                 .events(events)
@@ -23,8 +22,7 @@ public class CompilationMapper {
                 .build();
     }
 
-//    Преобразование в dto
-
+    //Преобразование в dto
     public CompilationDto toCompilationDto(Compilation compilation, List<EventShortDto> events) {
         return CompilationDto.builder()
                 .id(compilation.getId())

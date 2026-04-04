@@ -79,7 +79,8 @@
             <groupId>com.querydsl</groupId>
             <artifactId>querydsl-jpa</artifactId>
             <classifier>jakarta</classifier>
-            <version>5.1.0</version>
+            <!--<version>5.1.0</version>-->
+            <version>${querydsl.version}</version>
         </dependency>
 
     </dependencies>
@@ -127,7 +128,8 @@
                         <groupId>com.querydsl</groupId>
                         <artifactId>querydsl-apt</artifactId>
                         <classifier>jakarta</classifier>
-                        <version>5.1.0</version>
+                        <!--<version>5.1.0</version>-->
+                        <version>${querydsl.version}</version>
                     </dependency>
                 </dependencies>
             </plugin>
