@@ -580,7 +580,7 @@ public class EventServiceImpl implements EventService {
                 earliestCratedEvent.format(Constants.FORMATTER),
                 LocalDateTime.now().plusSeconds(1).format(Constants.FORMATTER),
                 uris,
-                true
+                null
         );
 
         List<StatResponseDto> stats = statClient.getStats(statRequestParamDto);
