@@ -47,7 +47,6 @@ public class StatClientImpl implements StatClient {
                     .body(HitDto.class);
         } catch (Exception e) {
             log.error("Неудачная попытка добавления записи в сервис статистики. Запись: {}", dto);
-            log.error(">>>>>> Класс ошибки: {} >>>>>> Сообщение: {}.<<<<<<", e.getClass(), e.getMessage());
             return new HitDto();
         }
     }

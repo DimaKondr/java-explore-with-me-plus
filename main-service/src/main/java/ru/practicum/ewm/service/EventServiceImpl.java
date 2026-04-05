@@ -578,7 +578,7 @@ public class EventServiceImpl implements EventService {
 
         StatRequestParamDto statRequestParamDto = new StatRequestParamDto(
                 earliestCratedEvent.format(Constants.FORMATTER),
-                LocalDateTime.now().format(Constants.FORMATTER),
+                LocalDateTime.now().plusSeconds(1).format(Constants.FORMATTER),
                 uris,
                 true
         );
