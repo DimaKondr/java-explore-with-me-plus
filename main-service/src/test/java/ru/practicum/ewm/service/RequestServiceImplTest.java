@@ -154,5 +154,4 @@ class RequestServiceImplTest {
         verify(userRepository).findById(1L);
         verify(eventRepository, never()).findById(any());
     }
-    
 }
