@@ -15,7 +15,6 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 public class StatController {
-
     private final StatService statService;
 
     @PostMapping("/hit")
@@ -35,7 +34,7 @@ public class StatController {
         log.info("GET /stats с параметрами: start={}, end={}, uris={}, unique={}",
                 start, end, uris, unique);
 
-
         return statService.getStats(start, end, uris, unique);
     }
+
 }
