@@ -57,7 +57,7 @@ class StatServiceImplTest {
     @Test
     void testCreateHit() {
         when(hitMapper.toEntity(hitDto)).thenReturn(hit);
-        when(hitRepository.saveAndFlush(hit)).thenReturn(hit);
+        when(hitRepository.save(hit)).thenReturn(hit);
         when(hitMapper.toDto(hit)).thenReturn(hitDto);
 
         HitDto result = statService.createHit(hitDto);
@@ -69,7 +69,7 @@ class StatServiceImplTest {
         assertEquals(hitDto.getIp(), result.getIp());
 
         verify(hitMapper, times(1)).toEntity(hitDto);
-        verify(hitRepository, times(1)).saveAndFlush(hit);
+        verify(hitRepository, times(1)).save(hit);
         verify(hitMapper, times(1)).toDto(hit);
     }
 

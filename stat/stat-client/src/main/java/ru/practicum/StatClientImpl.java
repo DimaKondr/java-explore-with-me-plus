@@ -16,14 +16,12 @@ import java.util.List;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 
 @Slf4j
-//@Component
 public class StatClientImpl implements StatClient {
     private final RestClient restClient;
 
-    public StatClientImpl(/*RestClient.Builder builder,*/
-                          @Value("${client.url:http://localhost:9090}") String baseUrl) {
+    public StatClientImpl(@Value("${client.url:http://localhost:9090}") String baseUrl) {
         this.restClient = RestClient.builder()
-                .baseUrl(/*"http://localhost:9090"*/baseUrl)
+                .baseUrl(baseUrl)
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .build();
     }
