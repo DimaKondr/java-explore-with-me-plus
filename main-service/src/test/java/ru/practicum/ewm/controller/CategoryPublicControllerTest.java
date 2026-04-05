@@ -143,7 +143,7 @@ class CategoryPublicControllerTest {
         mockMvc.perform(get("/categories/999")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.status").value("404 NOT_FOUND"))
+                .andExpect(jsonPath("$.status").value("NOT_FOUND"))
                 .andExpect(jsonPath("$.message").value("Category с id=999 не найден"));
 
         verify(categoryService, times(1)).getCategory(999L);

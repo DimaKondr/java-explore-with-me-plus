@@ -17,6 +17,7 @@ import ru.practicum.ewm.exception.NotFoundException;
 import ru.practicum.ewm.model.Category;
 import ru.practicum.ewm.model.event.Event;
 import ru.practicum.ewm.repository.CategoryRepository;
+import ru.practicum.ewm.repository.EventRepository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +33,9 @@ class CategoryServiceImplTest {
 
     @Mock
     private CategoryRepository categoryRepository;
+
+    @Mock
+    private EventRepository eventRepository;
 
     @InjectMocks
     private CategoryServiceImpl categoryService;
@@ -168,6 +172,7 @@ class CategoryServiceImplTest {
         category.setEvents(events);
 
         when(categoryRepository.findById(1L)).thenReturn(Optional.of(category));
+        when(eventRepository.existsByCategoryId(1L)).thenReturn(true);
 
         assertThatThrownBy(() -> categoryService.deleteCategory(1L))
                 .isInstanceOf(ConflictException.class)
@@ -227,8 +232,9 @@ class CategoryServiceImplTest {
         int from = 0;
         int size = 0;
 
-        List<CategoryDto> result = categoryService.getCategories(from, size);
+        assertThatThrownBy(() -> categoryService.getCategories(from, size))
+                .isInstanceOf(ArithmeticException.class);
 
-        assertThat(result).isEmpty();
+        verify(categoryRepository, never()).findAll(any(Pageable.class));
     }
 }

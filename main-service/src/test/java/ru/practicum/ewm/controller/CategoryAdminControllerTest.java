@@ -79,7 +79,7 @@ class CategoryAdminControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(newCategoryRequest)))
                 .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.status").value("409 CONFLICT"));
+                .andExpect(jsonPath("$.status").value("CONFLICT"));
     }
 
     @Test
@@ -110,7 +110,7 @@ class CategoryAdminControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updateDto)))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.status").value("404 NOT_FOUND"));
+                .andExpect(jsonPath("$.status").value("NOT_FOUND"));
     }
 
     @Test
@@ -130,7 +130,7 @@ class CategoryAdminControllerTest {
 
         mockMvc.perform(delete("/admin/categories/999"))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.status").value("404 NOT_FOUND"));
+                .andExpect(jsonPath("$.status").value("NOT_FOUND"));
     }
 
 }

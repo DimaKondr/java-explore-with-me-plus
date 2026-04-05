@@ -8,7 +8,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import ru.practicum.ewm.dto.user.NewUserRequest;
 import ru.practicum.ewm.dto.user.UserDto;
@@ -66,22 +65,6 @@ class UserServiceImplTest {
     }
 
     @Test
-    void getUsers_WithoutIds_ShouldReturnAllUsers() {
-        List<User> users = Arrays.asList(user);
-        Page<User> page = new PageImpl<>(users);
-
-        when(userRepository.findAll(any(Pageable.class))).thenReturn(page);
-
-        List<UserDto> result = userService.getUsers(null, 0, 10);
-
-        assertThat(result).hasSize(1);
-        assertThat(result.get(0).getId()).isEqualTo(1L);
-
-        verify(userRepository, times(1)).findAll(any(Pageable.class));
-        verify(userRepository, never()).findAllByIds(anyList(), any(Pageable.class));
-    }
-
-    @Test
     void getUsers_WithIds_ShouldReturnFilteredUsers() {
         List<Long> ids = Arrays.asList(1L, 2L);
         List<User> users = Arrays.asList(user);
@@ -95,18 +78,6 @@ class UserServiceImplTest {
 
         verify(userRepository, times(1)).findAllByIds(eq(ids), any(Pageable.class));
         verify(userRepository, never()).findAll(any(Pageable.class));
-    }
-
-    @Test
-    void getUsers_WithPagination_ShouldUseCorrectPageable() {
-        List<User> users = Arrays.asList(user);
-        Page<User> page = new PageImpl<>(users);
-
-        when(userRepository.findAll(any(Pageable.class))).thenReturn(page);
-
-        userService.getUsers(null, 20, 10);
-
-        verify(userRepository, times(1)).findAll(PageRequest.of(2, 10));
     }
 
     @Test

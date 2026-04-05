@@ -113,6 +113,7 @@ class RequestServiceImplTest {
     @DisplayName("Получение списка заявок пользователя - успешный сценарий")
     void getRequestByUserId_Success() {
         when(requestRepository.findAllByUserId(1L)).thenReturn(List.of(testRequest));
+        when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
 
         List<ParticipationRequestDto> result = requestService.getRequestByUserId(1L);
 
@@ -125,16 +126,15 @@ class RequestServiceImplTest {
     }
 
     @Test
-    @DisplayName("Получение списка заявок - пустой список")
-    void getRequestByUserId_EmptyList() {
-        when(requestRepository.findAllByUserId(1L)).thenReturn(List.of());
+    @DisplayName("Получение списка заявок - пользователь не найден (404)")
+    void getRequestByUserId_UserNotFound() {
+        when(userRepository.findById(1L)).thenReturn(Optional.empty());
 
-        List<ParticipationRequestDto> result = requestService.getRequestByUserId(1L);
+        assertThrows(NotFoundException.class, () ->
+                requestService.getRequestByUserId(1L)
+        );
 
-        assertNotNull(result);
-        assertTrue(result.isEmpty());
-
-        verify(requestRepository).findAllByUserId(1L);
+        verify(requestRepository, never()).findAllByUserId(1L);
     }
 
     @Test
