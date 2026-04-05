@@ -28,7 +28,7 @@ public class StatServiceImpl implements StatService {
     public HitDto createHit(HitDto hitDto) {
         log.info("Сохранение информации о запросе: {}", hitDto);
         Hit hit = hitMapper.toEntity(hitDto);
-        Hit savedHit = hitRepository.save(hit);
+        Hit savedHit = hitRepository.saveAndFlush(hit);
         return hitMapper.toDto(savedHit);
     }
 
