@@ -1,6 +1,7 @@
 package ru.practicum;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -20,20 +21,21 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 public class StatClientImpl implements StatClient {
     private final RestClient restClient;
 
-    public StatClientImpl(RestClient.Builder builder) {
+    public StatClientImpl(RestClient.Builder builder,
+                          @Value("${client.url:http://localhost:9090}") String baseUrl) {
         this.restClient = builder
-                .baseUrl("http://localhost:9090")
+                .baseUrl(/*"http://localhost:9090"*/baseUrl)
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .build();
     }
 
-    //  конструктор для тестов
+    /*//  конструктор для тестов
     public StatClientImpl(RestClient.Builder builder, String baseUrl) {
         this.restClient = builder
                 .baseUrl(baseUrl)
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .build();
-    }
+    }*/
 
     @Override
     public HitDto postHit(HitDto dto) {
