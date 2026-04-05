@@ -46,6 +46,7 @@ public class EventPublicController {
     ) {
         log.info("Уровень Public. Получение списка из {} событий по необходимым параметрам. " +
                 "Пропускаем {} элементов. ", size, from);
+        log.info("ОТПРАВКА ХИТА: uri = {}, ip = {}", request.getRequestURI(), request.getRemoteAddr());
         HitDto hitDto = HitDto.builder()
                 .app("ewm-main-service")
                 .uri(request.getRequestURI())

@@ -28,12 +28,14 @@ public class StatServiceImpl implements StatService {
     public HitDto createHit(HitDto hitDto) {
         log.info("Сохранение информации о запросе: {}", hitDto);
         Hit hit = hitMapper.toEntity(hitDto);
+        System.out.println(">>>>>>>>>>>>>>>>>>>" + hitDto.getUri() + "<<<<<<<<<<<<<<<<<<<<<<<");
         Hit savedHit = hitRepository.saveAndFlush(hit);
         return hitMapper.toDto(savedHit);
     }
 
     @Override
     public List<StatResponseDto> getStats(String start, String end, List<String> uris, Boolean unique) {
+        log.info("ПОИСК СТАТИСТИКИ: uris = {}, start = {}, end = {}", uris, start, end);
         LocalDateTime startTime = LocalDateTime.parse(start, FORMATTER);
         LocalDateTime endTime = LocalDateTime.parse(end, FORMATTER);
 
@@ -49,6 +51,7 @@ public class StatServiceImpl implements StatService {
         }
 
         log.info("Получена статистика: {} записей", stats.size());
+        log.info("РЕЗУЛЬТАТ ИЗ БД: {}", stats);
         return stats;
     }
 
