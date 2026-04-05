@@ -563,6 +563,7 @@ public class EventServiceImpl implements EventService {
     }
 
     private Map<Long, Long> getViewsCount(List<Event> events) {
+        if (events.isEmpty()) return Collections.emptyMap();
 
         List<String> uris = new ArrayList<>();
         for (Event event : events) {
@@ -570,9 +571,14 @@ public class EventServiceImpl implements EventService {
             uris.add(uri);
         }
 
+        LocalDateTime earliestCratedEvent = events.stream()
+                .map(Event::getCreatedOn)
+                .min(LocalDateTime::compareTo)
+                .orElse(LocalDateTime.now().minusDays(1));
+
         StatRequestParamDto statRequestParamDto = new StatRequestParamDto(
-                events.getFirst().getEventDate().minusHours(36L).format(Constants.FORMATTER),
-                events.getLast().getEventDate().plusHours(36L).format(Constants.FORMATTER),
+                earliestCratedEvent.format(Constants.FORMATTER),
+                LocalDateTime.now().format(Constants.FORMATTER),
                 uris,
                 true
         );
