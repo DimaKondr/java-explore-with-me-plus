@@ -46,6 +46,13 @@ public class EventPublicController {
     ) {
         log.info("Уровень Public. Получение списка из {} событий по необходимым параметрам. " +
                 "Пропускаем {} элементов. ", size, from);
+        HitDto hitDto = HitDto.builder()
+                .app("ewm-main-service")
+                .uri(request.getRequestURI())
+                .ip(request.getRemoteAddr())
+                .timestamp(LocalDateTime.now().format(Constants.FORMATTER))
+                .build();
+        HitDto hitResult = statClient.postHit(hitDto);
         PublicEventRequestParam param = PublicEventRequestParam.builder()
                 .text(text)
                 .categories(categories)
@@ -58,13 +65,6 @@ public class EventPublicController {
                 .size(size)
                 .build();
         List<EventShortDto> result = eventService.getEventsByPublicRequest(param);
-        HitDto hitDto = HitDto.builder()
-                .app("ewm-main-service")
-                .uri(request.getRequestURI())
-                .ip(request.getRemoteAddr())
-                .timestamp(LocalDateTime.now().format(Constants.FORMATTER))
-                .build();
-        HitDto hitResult = statClient.postHit(hitDto);
         log.info("Успешный публичный запрос на получение списка событий по фильтрам. " +
                 "В статистику внесена новая запись: {}", hitResult);
         return result;
@@ -76,7 +76,6 @@ public class EventPublicController {
             HttpServletRequest request
     ) {
         log.info("Уровень Public. Получение данных о событии с ID: {}. ",eventId);
-        EventFullDto result = eventService.getEventByIdByPublicRequest(eventId);
         HitDto hitDto = HitDto.builder()
                 .app("ewm-main-service")
                 .uri(request.getRequestURI())
@@ -84,6 +83,7 @@ public class EventPublicController {
                 .timestamp(LocalDateTime.now().format(Constants.FORMATTER))
                 .build();
         HitDto hitResult = statClient.postHit(hitDto);
+        EventFullDto result = eventService.getEventByIdByPublicRequest(eventId);
         log.info("Успешный публичный запрос на получение события по ID. " +
                 "В статистику внесена новая запись: {}", hitResult);
         return result;
