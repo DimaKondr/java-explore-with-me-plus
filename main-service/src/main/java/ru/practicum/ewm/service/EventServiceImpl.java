@@ -577,10 +577,10 @@ public class EventServiceImpl implements EventService {
                 .orElse(LocalDateTime.now().minusDays(1));
 
         StatRequestParamDto statRequestParamDto = new StatRequestParamDto(
-                earliestCratedEvent.format(Constants.FORMATTER),
-                LocalDateTime.now().plusSeconds(1).format(Constants.FORMATTER),
+                earliestCratedEvent.minusMinutes(1).format(Constants.FORMATTER),
+                LocalDateTime.now().plusMinutes(1).format(Constants.FORMATTER),
                 uris,
-                null
+                true
         );
 
         List<StatResponseDto> stats = statClient.getStats(statRequestParamDto);
