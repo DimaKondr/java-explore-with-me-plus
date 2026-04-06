@@ -1,10 +1,15 @@
 package ru.practicum.ewm.service;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import ru.practicum.ewm.dto.comment.CommentResponseDto;
+
 import ru.practicum.ewm.dto.comment.CommentResponseDto;
 import ru.practicum.ewm.dto.comment.NewCommentDto;
 import ru.practicum.ewm.dto.comment.UpdateCommentUserRequest;
 
 public interface CommentService {
+    Page<CommentResponseDto> getApprovedCommentsByEvent(Long eventId, Pageable pageable);
 
     CommentResponseDto addComment(Long userId, Long eventId, NewCommentDto dto);
 

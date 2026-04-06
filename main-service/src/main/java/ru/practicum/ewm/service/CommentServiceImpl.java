@@ -2,6 +2,8 @@ package ru.practicum.ewm.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.dto.comment.CommentResponseDto;
@@ -113,4 +115,13 @@ public class CommentServiceImpl implements CommentService {
         log.info("Комментарий с ID: {} удален.", commentId);
     }
 
+    @Override
+    public Page<CommentResponseDto> getApprovedCommentsByEvent(Long eventId, Pageable pageable) {
+        log.debug("Получение подтвержденных комментариев для event: {}", eventId);
+
+        Page<Comment> comments = commentRepository.findByEventIdAndStatus(
+                eventId, CommentStatus.APPROVED, pageable);
+
+        return comments.map(CommentMapper::commentToResponseDto);
+    }
 }
