@@ -57,6 +57,7 @@ public class CommentPrivateController {
     }
 
     @DeleteMapping("/{commentId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteComment(
             @PathVariable
                 @Positive Long userId,

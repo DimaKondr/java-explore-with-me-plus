@@ -24,9 +24,9 @@ import ru.practicum.ewm.service.CommentService;
 @Validated
 public class CommentAdminController {
 
-    private CommentService commentService;
+    private final CommentService commentService;
 
-    @DeleteMapping("{commentId}/status")
+    @PatchMapping("{commentId}/status")
     @ResponseStatus(HttpStatus.OK)
     public CommentResponseDto updateCommentStatus(
             @PathVariable Long commentId,

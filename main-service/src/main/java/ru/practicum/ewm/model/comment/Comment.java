@@ -40,10 +40,10 @@ public class Comment {
 
     // Связи (для получения данных из связанных таблиц)
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false, insertable = false, updatable = false)
+    @JoinColumn(name = "user_id", nullable = false)
     User author;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "event_id", nullable = false, insertable = false, updatable = false)
+    @JoinColumn(name = "event_id", nullable = false)
     Event event;
 }
