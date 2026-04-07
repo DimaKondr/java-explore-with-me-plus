@@ -24,7 +24,6 @@ class HitMapperTest {
     @Test
     void testToEntity() {
         HitDto dto = new HitDto();
-        dto.setId(1L);
         dto.setApp("test-app");
         dto.setUri("/test");
         dto.setIp("127.0.0.1");
@@ -33,7 +32,7 @@ class HitMapperTest {
         Hit hit = hitMapper.toEntity(dto);
 
         assertNotNull(hit);
-        assertEquals(dto.getId(), hit.getId());
+        assertEquals(null, hit.getId());
         assertEquals(dto.getApp(), hit.getApp());
         assertEquals(dto.getUri(), hit.getUri());
         assertEquals(dto.getIp(), hit.getIp());

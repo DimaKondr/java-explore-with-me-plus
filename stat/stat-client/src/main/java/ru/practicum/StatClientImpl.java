@@ -1,10 +1,10 @@
 package ru.practicum;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import ru.practicum.ewm.HitDto;
 import ru.practicum.ewm.StatRequestParamDto;
@@ -16,14 +16,12 @@ import java.util.List;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 
 @Slf4j
-@Component
 public class StatClientImpl implements StatClient {
-
     private final RestClient restClient;
 
-    public StatClientImpl(RestClient.Builder builder) {
-        this.restClient = builder
-                .baseUrl("http://localhost:9090")
+    public StatClientImpl(@Value("${client.url:http://localhost:9090}") String baseUrl) {
+        this.restClient = RestClient.builder()
+                .baseUrl(baseUrl)
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .build();
     }
