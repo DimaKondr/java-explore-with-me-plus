@@ -7,8 +7,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.dto.comment.CommentResponseDto;
+import ru.practicum.ewm.dto.comment.CommentStatusUpdateRequest;
 import ru.practicum.ewm.dto.comment.NewCommentDto;
 import ru.practicum.ewm.dto.comment.UpdateCommentUserRequest;
+import ru.practicum.ewm.exception.CommentException;
 import ru.practicum.ewm.exception.NotFoundException;
 import ru.practicum.ewm.exception.ValidationException;
 import ru.practicum.ewm.mapper.CommentMapper;
@@ -21,6 +23,7 @@ import ru.practicum.ewm.repository.EventRepository;
 import ru.practicum.ewm.repository.UserRepository;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 
 @Service
 @RequiredArgsConstructor
@@ -123,5 +126,71 @@ public class CommentServiceImpl implements CommentService {
                 eventId, CommentStatus.APPROVED, pageable);
 
         return comments.map(CommentMapper::commentToResponseDto);
+    }
+
+    @Transactional
+    @Override
+    public CommentResponseDto updateCommentStatus(Long commentId, CommentStatusUpdateRequest request) {
+
+        log.info("Admin: изменить статус комментария с id={} на status - {}", commentId, request.getStatus());
+
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new NotFoundException(String.format("Комментарий с ID=%d не найден", commentId)));
+
+        CommentStatus newStatus;
+        try {
+            newStatus = CommentStatus.valueOf(request.getStatus().toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new CommentException("Недопустимый статус: " + request.getStatus());
+        }
+
+        if (comment.getStatus() == newStatus) {
+            throw new CommentException(String.format(
+                    "Комментарий с ID=%d уже имеет статус '%s'", commentId, newStatus));
+        }
+
+        comment.setStatus(newStatus);
+        comment.setUpdatedAt(LocalDateTime.now());
+
+        Comment updated = commentRepository.save(comment);
+        log.info("Admin: статус комментария с id={} изменен на {}", commentId, newStatus);
+
+        return CommentMapper.commentToResponseDto(updated);
+    }
+
+    @Override
+    public Page<CommentResponseDto> getCommentsByEvent(Long eventId, String status, Pageable pageable) {
+        log.debug("Admin: получить комментарии по событию eventId= {}, status: {}", eventId, status);
+
+        if (!eventRepository.existsById(eventId)) {
+            throw new NotFoundException("Событие с ID: " + eventId + " не найдено");
+        }
+
+        if (status != null && !status.isBlank()) {
+            try {
+                CommentStatus commentStatus = CommentStatus.valueOf(status.toUpperCase());
+                return commentRepository.findByEventIdAndStatus(eventId, commentStatus, pageable)
+                        .map(CommentMapper::commentToResponseDto);
+            } catch (IllegalArgumentException e) {
+                log.warn("Некорректный статус: {}", status);
+                throw new ValidationException("Некорректный статус. Допустимые значения: PENDING, APPROVED, REJECTED");
+            }
+        }
+        // Без статуса - возвращаем все комментарии события
+        return commentRepository.findByEventId(eventId, pageable)
+                .map(CommentMapper::commentToResponseDto);
+    }
+
+    @Override
+    @Transactional
+    public void deleteAdminComment(Long commentId) {
+        log.info("Admin: удалить комментарий с id: {}", commentId);
+
+        if (!commentRepository.existsById(commentId)) {
+            throw new NotFoundException("Комментарий с ID: " + commentId + " не найден");
+        }
+
+        commentRepository.deleteById(commentId);
+        log.info("Admin: comment deleted, id: {}", commentId);
     }
 }
