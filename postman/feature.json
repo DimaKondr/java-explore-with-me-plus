@@ -1,10 +1,10 @@
 {
   "info": {
-    "_postman_id": "fb6cb62b-ea9d-43c6-89cf-50306215bec8",
+    "_postman_id": "3f1f6dfb-b9bb-4fd8-808f-8bccb3998983",
     "name": "Комметарии",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_exporter_id": "44709065",
-    "_collection_link": "https://go.postman.co/collection/44709065-fb6cb62b-ea9d-43c6-89cf-50306215bec8?source=collection_link"
+    "_collection_link": "https://go.postman.co/collection/44709065-3f1f6dfb-b9bb-4fd8-808f-8bccb3998983?source=collection_link"
   },
   "item": [
     {
@@ -586,6 +586,52 @@
         }
       },
       "response": []
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "timestamp",
+      "value": ""
+    },
+    {
+      "key": "userId",
+      "value": ""
+    },
+    {
+      "key": "eventId",
+      "value": ""
+    },
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "commentId",
+      "value": ""
     }
   ]
 }
