@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.ewm.constants.Constants;
 import ru.practicum.ewm.dto.comment.CommentResponseDto;
 import ru.practicum.ewm.dto.comment.CommentStatusUpdateRequest;
 import ru.practicum.ewm.dto.comment.NewCommentDto;
@@ -23,7 +24,6 @@ import ru.practicum.ewm.repository.EventRepository;
 import ru.practicum.ewm.repository.UserRepository;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
 
 @Service
 @RequiredArgsConstructor
@@ -79,6 +79,18 @@ public class CommentServiceImpl implements CommentService {
         } else if (!eventRepository.existsById(dto.getEventId())) {
             log.error("Обновление комментария. Событие с ID: {} не найдено.", dto.getEventId());
             throw new NotFoundException("Обновление комментария. Событие с ID: " + dto.getEventId() + " не найдено.");
+        }
+
+        LocalDateTime createdAt = oldComment.getCreatedAt();
+        LocalDateTime now = LocalDateTime.now();
+        if ((oldComment.getStatus().equals(CommentStatus.APPROVED)
+                || oldComment.getStatus().equals(CommentStatus.PENDING))
+                && createdAt.isBefore(now.minusHours(24L))) {
+            log.error("Обновление комментария. C момента публикации комментария с ID: {} прошло более 24 часов. " +
+                    "Создание: {}. Попытка изменения: {}. Редактирование невозможно.",
+                    oldComment.getId(), createdAt.format(Constants.FORMATTER), now.format(Constants.FORMATTER));
+            throw new ValidationException("Обновление комментария. " +
+                    "C момента публикации комментария прошло более 24 часов. Редактирование невозможно.");
         }
 
         oldComment.setContent(dto.getContent());
