@@ -11,5 +11,5 @@ import ru.practicum.ewm.model.comment.CommentStatus;
 public interface CommentRepository extends JpaRepository<Comment, Long> {
     Page<Comment> findByEventIdAndStatus(Long eventId, CommentStatus status, Pageable pageable);
 
-    Page<Comment>findByEventId(Long eventId, Pageable pageable);
+    Page<Comment> findByEventId(Long eventId, Pageable pageable);
 }

@@ -28,7 +28,7 @@ public class Comment {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    CommentStatus status = CommentStatus.PENDING;
+    CommentStatus status;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
